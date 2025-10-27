@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>COZY FARM // terminal edition</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="game-shell">
+    <!-- START SCREEN -->
+    <div id="start-screen">
+      <div id="start-layout">
+        <!-- LEFT MENU COLUMN -->
+        <div id="start-menu-column">
+          <div id="menu-title">MENU</div>
+          <div id="menu-options">
+            <div class="menu-option" data-index="0">&gt; NEW WORLD</div>
+            <div class="menu-option" data-index="1">  LOAD</div>
+          </div>
+          <div id="menu-hint">↑/↓ or W/S to move • ENTER to select</div>
+        </div>
+
+        <!-- CENTER TITLE COLUMN -->
+        <div id="start-center">
+          <pre id="game-ascii-title">
+ ██████╗ ██████╗ ███████╗██╗   ██╗    ███████╗ █████╗ ██████╗ ███╗  ███╗
+██╔════╝ ██╔══██╗██╔════╝██║   ██║    ██╔════╝██╔══██╗██╔══██╗████╗ ████║
+██║      ██████╔╝█████╗  ██║   ██║    ███████╗███████║██║  ██║██╔████╔██║
+██║      ██╔══██╗██╔══╝  ╚██╗ ██╔╝    ╚════██║██╔══██║██║  ██║██║╚██╔╝██║
+╚██████╗ ██║  ██║███████╗ ╚████╔╝     ███████║██║  ██║██████╔╝██║ ╚═╝ ██║
+ ╚═════╝ ╚═╝  ╚═╝╚══════╝  ╚═══╝      ╚══════╝╚═╝  ╚═╝╚═════╝ ╚═╝     ╚═╝
+          </pre>
+          <div id="version-line">v0.0.1-prealpha</div>
+        </div>
+
+        <!-- RIGHT EMPTY COLUMN -->
+        <div id="start-right"></div>
+      </div>
+    </div>
+
+    <!-- GAME SCREEN (hidden for now) -->
+    <div id="game-screen" class="hidden"></div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

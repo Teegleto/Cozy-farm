@@ -5,7 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>COZY FARM</title>
 <style>
-/* === FINAL TERMINAL BUILD WITH ORIGINAL SPACING === */
+/* =========================
+   TERMINAL GREEN LAYOUT
+   =========================
+   TUNING KNOBS:
+   --menu-top: how low the menu block sits (vh from top of screen)
+   --gap-tight: vertical spacing between menu lines (em)
+
+   You said:
+   - Title position was good originally.
+   - Version position was good originally.
+   - Bottom hint position was good originally.
+   We are now FREEZING those.
+   We will ONLY move the block with [N] new game / [L] load game.
+   ========================= */
+
+:root {
+  --menu-top: 55vh;    /* <- move this up/down to taste */
+  --gap-tight: 0.4rem; /* <- spacing between [N] and [L] */
+}
+
 html,body{
   height:100%;
   margin:0;
@@ -41,7 +60,7 @@ body::after{
   user-select:none;
 }
 
-/* --- TITLE + VERSION (unchanged from first good deployment) --- */
+/* --- TITLE: FROZEN --- */
 #ascii-title{
   position:absolute;
   top:10vh;
@@ -51,6 +70,8 @@ body::after{
   line-height:1.1;
   white-space:pre;
 }
+
+/* --- VERSION: FROZEN --- */
 #version{
   position:absolute;
   top:39vh;
@@ -60,44 +81,7 @@ body::after{
   opacity:.8;
 }
 
-/* --- MENU POSITION EXACTLY LIKE FIRST WORKING DEPLOYMENT --- */
-.block-slot{
-  position:absolute;
-  top:55vh;       /* restored original working vertical spacing */
-  left:33vw;
-  min-width:20rem;
-  max-width:60vw;
-  color:#00ff66;
-  font-size:1.1rem;
-  line-height:1.6;
-  white-space:pre;
-  text-shadow:0 0 6px #00ff6699,0 0 14px #00ff6633;
-}
-
-/* MAIN MENU */
-#menu-block{display:block;}
-.menu-line{margin:0.4rem 0;white-space:pre;}
-
-/* LOAD MENU */
-#load-block{display:none;flex-direction:column;}
-#load-header{margin-bottom:0.8rem;font-size:1rem;opacity:.8;}
-#load-list{
-  display:flex;
-  flex-direction:column;
-  gap:0.3rem;
-  font-size:1rem;
-  line-height:1.4;
-  white-space:pre;
-}
-.load-slot-line{white-space:pre;}
-
-/* NAMING MODE */
-#naming-block{display:none;flex-direction:column;}
-#farm-name-line{white-space:pre;}
-#confirm-line{margin-top:1rem;font-size:1rem;opacity:.8;white-space:pre;}
-#naming-esc-hint{margin-top:1rem;font-size:0.9rem;opacity:.6;white-space:pre;}
-
-/* HINT (unchanged) */
+/* --- HINT (bottom help text): FROZEN --- */
 #hint{
   position:absolute;
   bottom:6vh;
@@ -108,13 +92,88 @@ body::after{
   text-align:center;
   line-height:1.4;
 }
-.cursor{display:inline-block;width:0.6em;text-align:left;}
+
+/* =========================================================
+   MENU / LOAD / NAMING BLOCK SLOT
+   This is now the ONLY thing you move.
+   ========================================================= */
+.block-slot{
+  position:absolute;
+  top:var(--menu-top);
+  left:33vw;
+
+  min-width:20rem;
+  max-width:60vw;
+
+  color:#00ff66;
+  font-size:1.1rem;
+  line-height:1.6;
+  white-space:pre;
+  text-shadow:0 0 6px #00ff6699,0 0 14px #00ff6633;
+}
+
+/* MAIN MENU STATE */
+#menu-block{display:block;}
+.menu-line{
+  margin:var(--gap-tight) 0;
+  white-space:pre;
+}
+
+/* LOAD MENU STATE */
+#load-block{
+  display:none;
+  flex-direction:column;
+}
+#load-header{
+  margin-bottom:0.8rem;
+  font-size:1rem;
+  opacity:.8;
+}
+#load-list{
+  display:flex;
+  flex-direction:column;
+  gap:0.3rem;
+  font-size:1rem;
+  line-height:1.4;
+  white-space:pre;
+}
+.load-slot-line{
+  white-space:pre;
+}
+
+/* NAMING MODE STATE */
+#naming-block{
+  display:none;
+  flex-direction:column;
+}
+#farm-name-line{
+  white-space:pre;
+}
+#confirm-line{
+  margin-top:1rem;
+  font-size:1rem;
+  opacity:.8;
+  white-space:pre;
+}
+#naming-esc-hint{
+  margin-top:1rem;
+  font-size:0.9rem;
+  opacity:.6;
+  white-space:pre;
+}
+
+/* caret block for typing */
+.cursor{
+  display:inline-block;
+  width:0.6em;
+  text-align:left;
+}
 </style>
 </head>
 <body>
 <div id="screen">
 
-<!-- ASCII TITLE -->
+  <!-- ASCII TITLE -->
 <pre id="ascii-title">
  ██████╗    ██████╗   ███████╗  ██╗   ██╗      ███████╗    █████╗    ██████╗    ███╗   ███╗  
 ██╔════╝   ██╔═══██╗  ╚══███╔╝  ╚██╗ ██╔╝      ██╔════╝   ██╔══██╗   ██╔══██╗   ████╗ ████║  
@@ -124,129 +183,191 @@ body::after{
  ╚═════╝    ╚═════╝   ╚══════╝     ╚═╝         ╚═╝        ╚═╝  ╚═╝   ╚═╝  ╚═╝   ╚═╝     ╚═╝  
 </pre>
 
-<!-- VERSION -->
-<div id="version">v1.0.0</div>
+  <!-- VERSION -->
+  <div id="version">v1.0.0</div>
 
-<!-- MAIN MENU -->
-<div id="menu-block" class="block-slot">
-  <div class="menu-line">[N] new game</div>
-  <div class="menu-line">[L] load game</div>
-  <div class="menu-line" style="font-size:0.9rem;opacity:.6;">[Esc] quit</div>
-</div>
+  <!-- MAIN MENU BLOCK -->
+  <div id="menu-block" class="block-slot">
+    <div class="menu-line">[N] new game</div>
+    <div class="menu-line">[L] load game</div>
+    <div class="menu-line" style="font-size:0.9rem;opacity:.6;">[Esc] quit</div>
+  </div>
 
-<!-- LOAD MENU -->
-<div id="load-block" class="block-slot">
-  <div id="load-header">choose save (press number):    [Esc] back</div>
-  <div id="load-list"></div>
-</div>
+  <!-- LOAD MENU BLOCK -->
+  <div id="load-block" class="block-slot">
+    <div id="load-header">choose save (press number):    [Esc] back</div>
+    <div id="load-list"></div>
+  </div>
 
-<!-- NAMING MODE -->
-<div id="naming-block" class="block-slot">
-  <div id="farm-name-line"></div>
-  <div id="confirm-line"></div>
-  <div id="naming-esc-hint">[Esc] back</div>
-</div>
+  <!-- NAMING BLOCK -->
+  <div id="naming-block" class="block-slot">
+    <div id="farm-name-line"></div>
+    <div id="confirm-line"></div>
+    <div id="naming-esc-hint">[Esc] back</div>
+  </div>
 
-<!-- HINT -->
-<div id="hint">press the key shown in [ ] to continue</div>
+  <!-- HINT -->
+  <div id="hint">press the key shown in [ ] to continue</div>
 
 </div>
 
 <script>
-const state={
-  mode:"title",
-  saves:[
-    {name:"FARM_01",day:12,coins:342},
-    {name:"COW_TOWN",day:3,coins:58},
-    {name:"PIGHAVEN",day:7,coins:199}
+/*
+States:
+- "title": main menu with [N]/[L]
+- "loadMenu": show saves list, pick number
+- "naming": type farm name, confirm Y/N
+Esc always returns to title from sub-menus.
+*/
+
+const state = {
+  mode: "title",
+  saves: [
+    { name: "FARM_01",  day: 12, coins: 342 },
+    { name: "COW_TOWN", day:  3, coins:  58 },
+    { name: "PIGHAVEN", day:  7, coins: 199 }
   ],
-  nameBuffer:"",
-  confirmReady:false
+  nameBuffer: "",
+  confirmReady: false
 };
 
-const menuBlockEl=document.getElementById("menu-block");
-const loadBlockEl=document.getElementById("load-block");
-const loadListEl=document.getElementById("load-list");
-const namingBlockEl=document.getElementById("naming-block");
-const farmNameLine=document.getElementById("farm-name-line");
-const confirmLine=document.getElementById("confirm-line");
+// elements
+const menuBlockEl   = document.getElementById("menu-block");
+const loadBlockEl   = document.getElementById("load-block");
+const loadListEl    = document.getElementById("load-list");
+const namingBlockEl = document.getElementById("naming-block");
+const farmNameLine  = document.getElementById("farm-name-line");
+const confirmLine   = document.getElementById("confirm-line");
 
 function toTitle(){
-  state.mode="title";
-  menuBlockEl.style.display="block";
-  loadBlockEl.style.display="none";
-  namingBlockEl.style.display="none";
+  state.mode = "title";
+  menuBlockEl.style.display   = "block";
+  loadBlockEl.style.display   = "none";
+  namingBlockEl.style.display = "none";
 }
+
 function toLoadMenu(){
-  state.mode="loadMenu";
-  loadListEl.innerHTML="";
-  if(state.saves.length===0){
-    const d=document.createElement("div");
-    d.className="load-slot-line";
-    d.textContent="(no save files found)";
+  state.mode = "loadMenu";
+
+  loadListEl.innerHTML = "";
+  if (state.saves.length === 0) {
+    const d = document.createElement("div");
+    d.className = "load-slot-line";
+    d.textContent = "(no save files found)";
     loadListEl.appendChild(d);
-  }else{
-    state.saves.forEach((sv,i)=>{
-      const line=document.createElement("div");
-      line.className="load-slot-line";
-      line.textContent=`${i+1}) ${sv.name.padEnd(10," ")} Day ${sv.day}   £${sv.coins}`;
+  } else {
+    state.saves.forEach((sv, i) => {
+      const line = document.createElement("div");
+      line.className = "load-slot-line";
+      line.textContent =
+        `${i+1}) ${sv.name.padEnd(10," ")} Day ${sv.day}   £${sv.coins}`;
       loadListEl.appendChild(line);
     });
   }
-  menuBlockEl.style.display="none";
-  loadBlockEl.style.display="flex";
-  namingBlockEl.style.display="none";
+
+  menuBlockEl.style.display   = "none";
+  loadBlockEl.style.display   = "flex";
+  namingBlockEl.style.display = "none";
 }
+
 function toNaming(){
-  state.mode="naming";
-  state.nameBuffer="";
-  state.confirmReady=false;
-  menuBlockEl.style.display="none";
-  loadBlockEl.style.display="none";
-  namingBlockEl.style.display="flex";
+  state.mode = "naming";
+  state.nameBuffer   = "";
+  state.confirmReady = false;
+
+  menuBlockEl.style.display   = "none";
+  loadBlockEl.style.display   = "none";
+  namingBlockEl.style.display = "flex";
+
   renderNaming();
 }
+
 function renderNaming(){
-  if(!state.confirmReady){
-    farmNameLine.innerHTML=`Name your farm: ${escapeHTML(state.nameBuffer)}<span class="cursor">█</span>`;
-    confirmLine.textContent="Press Enter when done.";
-  }else{
-    farmNameLine.innerHTML=`Farm name: "${escapeHTML(state.nameBuffer)}"`;
-    confirmLine.textContent='Start with this name? [Y]es / [N]o';
+  if (!state.confirmReady) {
+    farmNameLine.innerHTML =
+      `Name your farm: ${escapeHTML(state.nameBuffer)}<span class="cursor">█</span>`;
+    confirmLine.textContent = "Press Enter when done.";
+  } else {
+    farmNameLine.innerHTML =
+      `Farm name: "${escapeHTML(state.nameBuffer)}"`;
+    confirmLine.textContent =
+      'Start with this name? [Y]es / [N]o';
   }
 }
-function escapeHTML(str){return str.replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 
-window.addEventListener("keydown",e=>{
-  if(e.key==="Escape"&&state.mode!=="title"){toTitle();return;}
+function escapeHTML(str){
+  return str.replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
 
-  if(state.mode==="title"){
-    if(e.key==="n"||e.key==="N"){toNaming();return;}
-    if(e.key==="l"||e.key==="L"){toLoadMenu();return;}
+window.addEventListener("keydown", e => {
+  // Global ESC to go back to title, except if we're already there
+  if (e.key === "Escape" && state.mode !== "title") {
+    toTitle();
     return;
   }
 
-  if(state.mode==="loadMenu"){
-    if(e.key>="1"&&e.key<="9"){
-      const idx=parseInt(e.key,10)-1;
-      if(state.saves[idx])console.log("LOAD SAVE SLOT:",idx+1,state.saves[idx]);
-    }
-    return;
-  }
-
-  if(state.mode==="naming"){
-    if(state.confirmReady){
-      if(e.key==="y"||e.key==="Y"){console.log("START GAME:",state.nameBuffer);return;}
-      if(e.key==="n"||e.key==="N"){state.nameBuffer="";state.confirmReady=false;renderNaming();return;}
+  if (state.mode === "title") {
+    if (e.key === "n" || e.key === "N") {
+      toNaming();
       return;
     }
-    if(e.key==="Enter"){state.confirmReady=true;renderNaming();return;}
-    if(e.key==="Backspace"){state.nameBuffer=state.nameBuffer.slice(0,-1);renderNaming();return;}
-    if(/^[a-zA-Z0-9 _-]$/.test(e.key)){
-      if(state.nameBuffer.length<20){state.nameBuffer+=e.key;renderNaming();}
+    if (e.key === "l" || e.key === "L") {
+      toLoadMenu();
+      return;
     }
+    return;
+  }
+
+  if (state.mode === "loadMenu") {
+    if (e.key >= "1" && e.key <= "9") {
+      const idx = parseInt(e.key,10) - 1;
+      if (state.saves[idx]) {
+        console.log("LOAD SAVE SLOT:", idx+1, state.saves[idx]);
+        // Later: go into game with that save.
+      }
+    }
+    return;
+  }
+
+  if (state.mode === "naming") {
+    if (state.confirmReady) {
+      if (e.key === "y" || e.key === "Y") {
+        console.log("START GAME:", state.nameBuffer);
+        // Later: actually enter game view
+        return;
+      }
+      if (e.key === "n" || e.key === "N") {
+        state.nameBuffer   = "";
+        state.confirmReady = false;
+        renderNaming();
+        return;
+      }
+      return;
+    }
+
+    if (e.key === "Enter") {
+      state.confirmReady = true;
+      renderNaming();
+      return;
+    }
+
+    if (e.key === "Backspace") {
+      state.nameBuffer = state.nameBuffer.slice(0, -1);
+      renderNaming();
+      return;
+    }
+
+    if (/^[a-zA-Z0-9 _-]$/.test(e.key)) {
+      if (state.nameBuffer.length < 20) {
+        state.nameBuffer += e.key;
+        renderNaming();
+      }
+    }
+    return;
   }
 });
+
+// initial render
 toTitle();
 </script>
 </body>

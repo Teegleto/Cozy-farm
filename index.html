@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>COZY FARM</title>
 <style>
-/* ==== TERMINAL-GREEN BUILD WITH INPUT ==== */
+/* ==== TERMINAL-GREEN BUILD WITH NAV + LOAD LIST ==== */
 html,body{
   height:100%;
   margin:0;
@@ -59,36 +59,53 @@ body::after{
   opacity:.8;
 }
 
-/* menu block (main menu mode) */
-#menu-block{
-  position:absolute;
-  top:55vh;
-  left:33vw;
-  font-size:1.1rem;
-  line-height:1.8;
-  display:block;
-}
-.menu-line{margin-bottom:1rem;white-space:pre;}
-
-/* load list (only visible in load mode) */
-#load-list{
-  margin-top:0.5rem;
-  padding-left:2rem;
-  font-size:1rem;
-  line-height:1.4;
-  white-space:pre;
-  display:none;
-}
-
-/* naming block (only visible in naming mode) */
-#naming-block{
+/* main menu / load menu / naming share the same coords */
+.block-position {
   position:absolute;
   top:55vh;
   left:33vw;
   font-size:1.1rem;
   line-height:1.6;
-  display:none;
   white-space:pre;
+  min-width:20rem;
+  max-width:60vw;
+}
+
+/* MAIN MENU */
+#menu-block{
+  line-height:1.8;
+}
+.menu-line{
+  margin-bottom:1rem;
+  white-space:pre;
+}
+
+/* LOAD MENU */
+#load-block{
+  display:none;
+  flex-direction:column;
+}
+#load-header{
+  margin-bottom:1rem;
+  font-size:1rem;
+  opacity:.8;
+}
+#load-list{
+  display:flex;
+  flex-direction:column;
+  gap:0.5rem;
+  font-size:1rem;
+  line-height:1.4;
+  white-space:pre;
+}
+.load-slot-line{
+  white-space:pre;
+}
+
+/* NAMING MODE */
+#naming-block{
+  display:none;
+  flex-direction:column;
 }
 #farm-name-line{
   white-space:pre;
@@ -97,9 +114,10 @@ body::after{
   margin-top:1rem;
   font-size:1rem;
   opacity:.8;
+  white-space:pre;
 }
 
-/* hint line at bottom */
+/* hint line */
 #hint{
   position:absolute;
   bottom:6vh;
@@ -110,8 +128,6 @@ body::after{
   text-align:center;
   line-height:1.4;
 }
-.hidden{display:none;}
-.visible{display:block;}
 .cursor{
   display:inline-block;
   width:0.6em;
@@ -122,7 +138,7 @@ body::after{
 <body>
 <div id="screen">
 
-  <!-- TITLE -->
+<!-- TITLE -->
 <pre id="ascii-title">
  ██████╗    ██████╗   ███████╗  ██╗   ██╗      ███████╗    █████╗    ██████╗    ███╗   ███╗  
 ██╔════╝   ██╔═══██╗  ╚══███╔╝  ╚██╗ ██╔╝      ██╔════╝   ██╔══██╗   ██╔══██╗   ████╗ ████║  
@@ -132,34 +148,43 @@ body::after{
  ╚═════╝    ╚═════╝   ╚══════╝     ╚═╝         ╚═╝        ╚═╝  ╚═╝   ╚═╝  ╚═╝   ╚═╝     ╚═╝  
 </pre>
 
-  <!-- VERSION -->
-  <div id="version">v1.0.0</div>
+<!-- VERSION -->
+<div id="version">v1.0.0</div>
 
-  <!-- MAIN MENU MODE -->
-  <div id="menu-block">
-    <div class="menu-line">[N] new game</div>
-    <div class="menu-line">[L] load game</div>
-    <div id="load-list"></div>
-  </div>
+<!-- MAIN MENU -->
+<div id="menu-block" class="block-position">
+  <div class="menu-line">[N] new game</div>
+  <div class="menu-line">[L] load game</div>
+  <div class="menu-line" style="font-size:0.9rem;opacity:.6;">[Esc] quit</div>
+</div>
 
-  <!-- NAMING MODE -->
-  <div id="naming-block">
-    <div id="farm-name-line"></div>
-    <div id="confirm-line"></div>
-  </div>
+<!-- LOAD MENU (list of saves, vertical) -->
+<div id="load-block" class="block-position">
+  <div id="load-header">choose save (press number):    [Esc] back</div>
+  <div id="load-list"></div>
+</div>
 
-  <!-- HINT -->
-  <div id="hint">press the key shown in [ ] to continue</div>
+<!-- NAMING MODE -->
+<div id="naming-block" class="block-position">
+  <div id="farm-name-line"></div>
+  <div id="confirm-line"></div>
+  <div style="font-size:0.9rem;opacity:.6;margin-top:1rem;">[Esc] back</div>
+</div>
+
+<!-- HINT -->
+<div id="hint">press the key shown in [ ] to continue</div>
 
 </div>
 
 <script>
 /*
 GAME STATES:
-"title"     = intro screen showing N/L menu
-"loadMenu"  = after pressing L, shows save slots and waits for number key
-"naming"    = after pressing N, lets user type name, then asks Y/N
-After confirm Y we'd go to "game" mode (not built yet).
+"title"     main menu
+"loadMenu"  picking a save slot by number
+"naming"    entering a new farm name, then confirm Y/N
+"game"      (not built yet)
+
+From ANY submenu you can now go back with Esc to the title menu.
 */
 
 const state = {
@@ -170,86 +195,107 @@ const state = {
     { name: "PIGHAVEN", day: 7, coins: 199 }
   ],
   nameBuffer: "",
-  confirmReady: false // true once user hit Enter after naming
+  confirmReady: false // after Enter in naming mode
 };
 
-// elements
+// DOM refs
 const menuBlockEl   = document.getElementById("menu-block");
+const loadBlockEl   = document.getElementById("load-block");
 const loadListEl    = document.getElementById("load-list");
 const namingBlockEl = document.getElementById("naming-block");
 const farmNameLine  = document.getElementById("farm-name-line");
 const confirmLine   = document.getElementById("confirm-line");
 
-// --- RENDER HELPERS ---
+// ----- RENDERERS -----
 
-function renderTitleMode() {
+function showTitleMode() {
+  state.mode = "title";
   menuBlockEl.style.display   = "block";
-  loadListEl.style.display    = "none";
+  loadBlockEl.style.display   = "none";
   namingBlockEl.style.display = "none";
 }
 
-function renderLoadMenuMode() {
-  // show saves as numbered list
-  let out = "";
+function showLoadMenuMode() {
+  state.mode = "loadMenu";
+
+  // build vertical list of saves
+  // example:
+  // 1) FARM_01   Day 12   £342
+  // 2) COW_TOWN  Day 3    £58
+  loadListEl.innerHTML = "";
   if (state.saves.length === 0) {
-    out = "  (no save files found)";
+    const noEl = document.createElement("div");
+    noEl.className = "load-slot-line";
+    noEl.textContent = "(no save files found)";
+    loadListEl.appendChild(noEl);
   } else {
-    out = state.saves
-      .map((sv, i) => `${i+1}) ${sv.name}  Day ${sv.day}  £${sv.coins}`)
-      .join("\\n");
+    state.saves.forEach((sv, i) => {
+      const line = document.createElement("div");
+      line.className = "load-slot-line";
+      line.textContent =
+        (i+1) + ") " +
+        sv.name.padEnd(10, " ") +
+        " Day " + sv.day +
+        "   £" + sv.coins;
+      loadListEl.appendChild(line);
+    });
   }
 
-  menuBlockEl.style.display   = "block";
-  loadListEl.style.display    = "block";
+  menuBlockEl.style.display   = "none";
+  loadBlockEl.style.display   = "flex";
   namingBlockEl.style.display = "none";
-
-  loadListEl.textContent = out;
 }
 
-function renderNamingMode() {
+function showNamingMode() {
+  state.mode = "naming";
+  state.nameBuffer = "";
+  state.confirmReady = false;
+  renderNamingScreen();
   menuBlockEl.style.display   = "none";
-  namingBlockEl.style.display = "block";
+  loadBlockEl.style.display   = "none";
+  namingBlockEl.style.display = "flex";
+}
 
+function renderNamingScreen() {
   if (!state.confirmReady) {
-    // still typing farm name
+    // still typing name
     farmNameLine.innerHTML =
       'Name your farm: ' +
-      sanitize(state.nameBuffer) +
+      escapeHTML(state.nameBuffer) +
       '<span class="cursor">█</span>';
 
     confirmLine.textContent = "Press Enter when done.";
   } else {
-    // asking for confirmation Y/N
+    // asking for confirmation
     farmNameLine.innerHTML =
-      'Farm name: "' + sanitize(state.nameBuffer) + '"';
-
+      'Farm name: "' + escapeHTML(state.nameBuffer) + '"';
     confirmLine.textContent =
       'Start with this name? [Y]es / [N]o';
   }
 }
 
-function sanitize(str){
-  // basic escape so user-typed < doesn't break HTML
+// helper for escaping < > so user input doesn't break HTML
+function escapeHTML(str){
   return str.replace(/</g,"&lt;").replace(/>/g,"&gt;");
 }
 
-// --- INPUT HANDLING ---
+// ----- INPUT -----
 
 window.addEventListener("keydown", (e) => {
+  // GLOBAL ESCAPE BACK TO TITLE (except already in title)
+  if (e.key === "Escape" && state.mode !== "title") {
+    showTitleMode();
+    return;
+  }
+
   // TITLE MODE
   if (state.mode === "title") {
     if (e.key === "n" || e.key === "N") {
-      // go to naming mode
-      state.mode = "naming";
-      state.nameBuffer = "";
-      state.confirmReady = false;
-      renderNamingMode();
+      showNamingMode();
       return;
     }
     if (e.key === "l" || e.key === "L") {
-      // go to load menu mode
-      state.mode = "loadMenu";
-      renderLoadMenuMode();
+      showLoadMenuMode();
       return;
     }
     return;
@@ -257,78 +303,64 @@ window.addEventListener("keydown", (e) => {
 
   // LOAD MENU MODE
   if (state.mode === "loadMenu") {
-    // pressing a number chooses a slot
+    // choose save by number
     if (e.key >= "1" && e.key <= "9") {
       const idx = parseInt(e.key,10)-1;
       if (state.saves[idx]) {
         console.log("LOAD SAVE SLOT:", idx+1, state.saves[idx]);
-        // here is where we'd jump to the real game mode with that save
-        // state.mode = "game";
+        // TODO: switch to game mode with that save
       }
-    }
-    // Escape goes back to title menu
-    if (e.key === "Escape") {
-      state.mode = "title";
-      renderTitleMode();
     }
     return;
   }
 
   // NAMING MODE
   if (state.mode === "naming") {
-    // if we're waiting for Y/N confirmation
     if (state.confirmReady) {
+      // we're on the [Y]es / [N]o step
       if (e.key === "y" || e.key === "Y") {
         console.log("START GAME with farm:", state.nameBuffer);
-        // here we'd actually start the game view
-        // state.mode = "game";
+        // TODO: switch to game mode with this new save
         return;
       }
       if (e.key === "n" || e.key === "N") {
-        // reset naming
+        // restart naming fresh
         state.nameBuffer = "";
         state.confirmReady = false;
-        renderNamingMode();
+        renderNamingScreen();
         return;
       }
       return;
     }
 
-    // not confirmed yet, still typing name
+    // still typing farm name:
     if (e.key === "Enter") {
-      // done typing, ask Y/N
+      // ready to confirm
       state.confirmReady = true;
-      renderNamingMode();
+      renderNamingScreen();
       return;
     }
 
     if (e.key === "Backspace") {
       state.nameBuffer = state.nameBuffer.slice(0, -1);
-      renderNamingMode();
+      renderNamingScreen();
       return;
     }
 
-    // basic allowed chars: letters, numbers, space, dash, underscore
+    // accept letters/numbers/space/-/_
     if (/^[a-zA-Z0-9 _-]$/.test(e.key)) {
-      // limit length a bit so it doesn't go crazy
       if (state.nameBuffer.length < 20) {
         state.nameBuffer += e.key;
-        renderNamingMode();
+        renderNamingScreen();
       }
-    }
-
-    // Escape from naming goes back to title menu
-    if (e.key === "Escape") {
-      state.mode = "title";
-      renderTitleMode();
     }
 
     return;
   }
 });
 
-// initial draw
-renderTitleMode();
+// INITIAL RENDER
+showTitleMode();
 </script>
 </body>
 </html>

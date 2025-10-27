@@ -1,0 +1,157 @@
+@font-face {
+  font-family: "CozTerm";
+  src: local("ui-monospace"), local("Consolas"), local("Menlo"),
+       local("SF Mono"), local("Courier New"), monospace;
+}
+
+:root {
+  --bg: #000000;
+  --panel-bg: #0f0f16;
+  --border: #2a2a44;
+  --text-main: #35ff9a;
+  --text-dim: #586b6b;
+  --accent: #6b6bff;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-main);
+  font-family: "CozTerm", monospace;
+  font-size: 14px;
+  line-height: 1.4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  user-select: none;
+}
+
+#game-shell {
+  background: #000;
+  border: 2px solid var(--border);
+  box-shadow: 0 0 30px #00ff8877, 0 0 120px #0033ff33;
+  width: min(1200px, 95vw);
+  height: min(700px, 90vh);
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* scanline overlay for CRT effect */
+#game-shell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.03) 0px,
+    rgba(0,0,0,0) 2px,
+    rgba(0,0,0,0) 3px
+  );
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+}
+
+#start-screen {
+  width: 100%;
+  height: 100%;
+}
+
+#start-layout {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  padding: 16px;
+}
+
+/* LEFT MENU */
+#start-menu-column {
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,0.4);
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+#menu-title {
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+#menu-options {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1ch;
+}
+
+.menu-option.active {
+  color: var(--accent);
+  text-shadow: 0 0 6px var(--accent);
+}
+
+#menu-hint {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 12px;
+}
+
+/* CENTER: ASCII TITLE */
+#start-center {
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,0.2);
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+#game-ascii-title {
+  font-size: 10px;
+  line-height: 1.1;
+  color: var(--accent);
+  text-shadow: 0 0 8px var(--accent);
+  white-space: pre;
+  margin-bottom: 12px;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+#version-line {
+  font-size: 12px;
+  color: var(--text-main);
+  letter-spacing: 0.08em;
+}
+
+#start-right {
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,0.1);
+  border-radius: 6px;
+  padding: 12px;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hidden {
+  display: none;
+}

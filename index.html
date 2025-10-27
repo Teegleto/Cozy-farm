@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>COZY FARM</title>
 <style>
-/* ==== TERMINAL-GREEN BUILD WITH INPUT (LOCKED SPACING) ==== */
+/* ==== TERMINAL-GREEN BUILD WITH INPUT ==== */
 html,body{
   height:100%;
   margin:0;
@@ -38,7 +38,6 @@ body::after{
   text-shadow:0 0 6px #00ff6699,0 0 14px #00ff6633;
   font-smooth:never;
   -webkit-font-smoothing:none;
-  user-select:none;
 }
 
 /* title + version */
@@ -60,7 +59,7 @@ body::after{
   opacity:.8;
 }
 
-/* main menu block */
+/* menu block (main menu mode) */
 #menu-block{
   position:absolute;
   top:55vh;
@@ -68,39 +67,20 @@ body::after{
   font-size:1.1rem;
   line-height:1.8;
   display:block;
-  white-space:pre;
 }
-.menu-line{
-  margin-bottom:1rem;
-  white-space:pre;
-}
+.menu-line{margin-bottom:1rem;white-space:pre;}
 
-/* load block (replaces menu when in loadMenu mode) */
-#load-block{
-  position:absolute;
-  top:55vh;
-  left:33vw;
-  font-size:1.1rem;
-  line-height:1.6;
-  display:none;
-  white-space:pre;
-}
-#load-header{
-  margin-bottom:1rem;
-  font-size:1rem;
-  opacity:.8;
-  white-space:pre;
-}
+/* load list (only visible in load mode) */
 #load-list{
-  display:flex;
-  flex-direction:column;
-  gap:0.5rem;
+  margin-top:0.5rem;
+  padding-left:2rem;
   font-size:1rem;
   line-height:1.4;
   white-space:pre;
+  display:none;
 }
 
-/* naming block (replaces menu when in naming mode) */
+/* naming block (only visible in naming mode) */
 #naming-block{
   position:absolute;
   top:55vh;
@@ -117,13 +97,6 @@ body::after{
   margin-top:1rem;
   font-size:1rem;
   opacity:.8;
-  white-space:pre;
-}
-#naming-hint{
-  margin-top:1rem;
-  font-size:0.9rem;
-  opacity:.6;
-  white-space:pre;
 }
 
 /* hint line at bottom */
@@ -137,10 +110,8 @@ body::after{
   text-align:center;
   line-height:1.4;
 }
-
 .hidden{display:none;}
 .visible{display:block;}
-
 .cursor{
   display:inline-block;
   width:0.6em;
@@ -168,12 +139,6 @@ body::after{
   <div id="menu-block">
     <div class="menu-line">[N] new game</div>
     <div class="menu-line">[L] load game</div>
-    <div class="menu-line" style="font-size:0.9rem;opacity:.6;">[Esc] quit</div>
-  </div>
-
-  <!-- LOAD MODE -->
-  <div id="load-block">
-    <div id="load-header">choose save (press number):    [Esc] back</div>
     <div id="load-list"></div>
   </div>
 
@@ -181,7 +146,6 @@ body::after{
   <div id="naming-block">
     <div id="farm-name-line"></div>
     <div id="confirm-line"></div>
-    <div id="naming-hint">[Esc] back</div>
   </div>
 
   <!-- HINT -->
@@ -191,13 +155,11 @@ body::after{
 
 <script>
 /*
-STATES:
-"title"     = main menu (menu-block visible)
-"loadMenu"  = load saves list (load-block visible)
-"naming"    = enter farm name + confirm (naming-block visible)
-Esc in loadMenu/naming returns to "title"
-
-Visual layout is frozen to match your original spacing.
+GAME STATES:
+"title"     = intro screen showing N/L menu
+"loadMenu"  = after pressing L, shows save slots and waits for number key
+"naming"    = after pressing N, lets user type name, then asks Y/N
+After confirm Y we'd go to "game" mode (not built yet).
 */
 
 const state = {
@@ -208,12 +170,11 @@ const state = {
     { name: "PIGHAVEN", day: 7, coins: 199 }
   ],
   nameBuffer: "",
-  confirmReady: false // true once Enter is pressed in naming
+  confirmReady: false // true once user hit Enter after naming
 };
 
 // elements
 const menuBlockEl   = document.getElementById("menu-block");
-const loadBlockEl   = document.getElementById("load-block");
 const loadListEl    = document.getElementById("load-list");
 const namingBlockEl = document.getElementById("naming-block");
 const farmNameLine  = document.getElementById("farm-name-line");
@@ -221,87 +182,74 @@ const confirmLine   = document.getElementById("confirm-line");
 
 // --- RENDER HELPERS ---
 
-function showTitle() {
-  state.mode = "title";
-
+function renderTitleMode() {
   menuBlockEl.style.display   = "block";
-  loadBlockEl.style.display   = "none";
+  loadListEl.style.display    = "none";
   namingBlockEl.style.display = "none";
 }
 
-function showLoadMenu() {
-  state.mode = "loadMenu";
-
-  // Build vertical save list with numbers
+function renderLoadMenuMode() {
+  // show saves as numbered list
+  let out = "";
   if (state.saves.length === 0) {
-    loadListEl.innerHTML = '<div>(no save files found)</div>';
+    out = "  (no save files found)";
   } else {
-    loadListEl.innerHTML = state.saves
-      .map((sv, i) => {
-        // e.g. "1) FARM_01   Day 12   £342"
-        return `<div>${i+1}) ${sv.name}  Day ${sv.day}  £${sv.coins}</div>`;
-      })
-      .join("");
+    out = state.saves
+      .map((sv, i) => `${i+1}) ${sv.name}  Day ${sv.day}  £${sv.coins}`)
+      .join("\\n");
   }
 
-  menuBlockEl.style.display   = "none";
-  loadBlockEl.style.display   = "block";
+  menuBlockEl.style.display   = "block";
+  loadListEl.style.display    = "block";
   namingBlockEl.style.display = "none";
+
+  loadListEl.textContent = out;
 }
 
-function showNaming() {
-  state.mode = "naming";
-  state.nameBuffer   = "";
-  state.confirmReady = false;
-
+function renderNamingMode() {
   menuBlockEl.style.display   = "none";
-  loadBlockEl.style.display   = "none";
   namingBlockEl.style.display = "block";
 
-  renderNamingScreen();
-}
-
-function renderNamingScreen() {
   if (!state.confirmReady) {
-    // user is still typing name
+    // still typing farm name
     farmNameLine.innerHTML =
       'Name your farm: ' +
-      escapeHTML(state.nameBuffer) +
+      sanitize(state.nameBuffer) +
       '<span class="cursor">█</span>';
 
     confirmLine.textContent = "Press Enter when done.";
   } else {
-    // asking Y/N
+    // asking for confirmation Y/N
     farmNameLine.innerHTML =
-      'Farm name: "' + escapeHTML(state.nameBuffer) + '"';
+      'Farm name: "' + sanitize(state.nameBuffer) + '"';
 
     confirmLine.textContent =
       'Start with this name? [Y]es / [N]o';
   }
 }
 
-function escapeHTML(str){
+function sanitize(str){
+  // basic escape so user-typed < doesn't break HTML
   return str.replace(/</g,"&lt;").replace(/>/g,"&gt;");
 }
 
 // --- INPUT HANDLING ---
 
 window.addEventListener("keydown", (e) => {
-
-  // Global ESC: if we're not in title, go back to title
-  if (e.key === "Escape" && state.mode !== "title") {
-    showTitle();
-    return;
-  }
-
   // TITLE MODE
   if (state.mode === "title") {
     if (e.key === "n" || e.key === "N") {
-      showNaming();
+      // go to naming mode
+      state.mode = "naming";
+      state.nameBuffer = "";
+      state.confirmReady = false;
+      renderNamingMode();
       return;
     }
     if (e.key === "l" || e.key === "L") {
-      showLoadMenu();
+      // go to load menu mode
+      state.mode = "loadMenu";
+      renderLoadMenuMode();
       return;
     }
     return;
@@ -309,63 +257,78 @@ window.addEventListener("keydown", (e) => {
 
   // LOAD MENU MODE
   if (state.mode === "loadMenu") {
-    // pick a save by pressing 1 / 2 / 3 / ...
+    // pressing a number chooses a slot
     if (e.key >= "1" && e.key <= "9") {
-      const idx = parseInt(e.key,10) - 1;
+      const idx = parseInt(e.key,10)-1;
       if (state.saves[idx]) {
         console.log("LOAD SAVE SLOT:", idx+1, state.saves[idx]);
-        // this is where you'd jump into the game with that save
+        // here is where we'd jump to the real game mode with that save
+        // state.mode = "game";
       }
+    }
+    // Escape goes back to title menu
+    if (e.key === "Escape") {
+      state.mode = "title";
+      renderTitleMode();
     }
     return;
   }
 
   // NAMING MODE
   if (state.mode === "naming") {
-    // we are in confirm stage
+    // if we're waiting for Y/N confirmation
     if (state.confirmReady) {
       if (e.key === "y" || e.key === "Y") {
         console.log("START GAME with farm:", state.nameBuffer);
-        // here: go to in-game view
+        // here we'd actually start the game view
+        // state.mode = "game";
         return;
       }
       if (e.key === "n" || e.key === "N") {
-        // restart naming fresh
-        state.nameBuffer   = "";
+        // reset naming
+        state.nameBuffer = "";
         state.confirmReady = false;
-        renderNamingScreen();
+        renderNamingMode();
         return;
       }
       return;
     }
 
-    // typing name
+    // not confirmed yet, still typing name
     if (e.key === "Enter") {
+      // done typing, ask Y/N
       state.confirmReady = true;
-      renderNamingScreen();
+      renderNamingMode();
       return;
     }
 
     if (e.key === "Backspace") {
-      state.nameBuffer = state.nameBuffer.slice(0,-1);
-      renderNamingScreen();
+      state.nameBuffer = state.nameBuffer.slice(0, -1);
+      renderNamingMode();
       return;
     }
 
-    // allowed chars (letters, numbers, space, dash, underscore)
+    // basic allowed chars: letters, numbers, space, dash, underscore
     if (/^[a-zA-Z0-9 _-]$/.test(e.key)) {
+      // limit length a bit so it doesn't go crazy
       if (state.nameBuffer.length < 20) {
         state.nameBuffer += e.key;
-        renderNamingScreen();
+        renderNamingMode();
       }
+    }
+
+    // Escape from naming goes back to title menu
+    if (e.key === "Escape") {
+      state.mode = "title";
+      renderTitleMode();
     }
 
     return;
   }
 });
 
-// initial draw = title screen
-showTitle();
+// initial draw
+renderTitleMode();
 </script>
 </body>
 </html>

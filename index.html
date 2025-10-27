@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>COZY FARM</title>
 <style>
-/* --- TERMINAL GREEN FINAL BUILD --- */
+/* === FINAL TERMINAL BUILD WITH ORIGINAL SPACING === */
 html,body{
   height:100%;
   margin:0;
@@ -41,7 +41,7 @@ body::after{
   user-select:none;
 }
 
-/* --- TITLE + VERSION --- */
+/* --- TITLE + VERSION (unchanged from first good deployment) --- */
 #ascii-title{
   position:absolute;
   top:10vh;
@@ -53,30 +53,30 @@ body::after{
 }
 #version{
   position:absolute;
-  top:38vh;
+  top:39vh;
   left:50%;
   transform:translateX(-50%);
   font-size:1rem;
   opacity:.8;
 }
 
-/* --- SHARED BLOCK SLOT FOR MENUS --- */
+/* --- MENU POSITION EXACTLY LIKE FIRST WORKING DEPLOYMENT --- */
 .block-slot{
   position:absolute;
-  top:55vh;       /* lower overall position */
+  top:55vh;       /* restored original working vertical spacing */
   left:33vw;
   min-width:20rem;
   max-width:60vw;
   color:#00ff66;
   font-size:1.1rem;
-  line-height:1.4; /* tighter spacing */
+  line-height:1.6;
   white-space:pre;
   text-shadow:0 0 6px #00ff6699,0 0 14px #00ff6633;
 }
 
 /* MAIN MENU */
 #menu-block{display:block;}
-.menu-line{margin:0.2rem 0;white-space:pre;}
+.menu-line{margin:0.4rem 0;white-space:pre;}
 
 /* LOAD MENU */
 #load-block{display:none;flex-direction:column;}
@@ -97,7 +97,7 @@ body::after{
 #confirm-line{margin-top:1rem;font-size:1rem;opacity:.8;white-space:pre;}
 #naming-esc-hint{margin-top:1rem;font-size:0.9rem;opacity:.6;white-space:pre;}
 
-/* bottom hint */
+/* HINT (unchanged) */
 #hint{
   position:absolute;
   bottom:6vh;
@@ -164,7 +164,6 @@ const state={
   confirmReady:false
 };
 
-// refs
 const menuBlockEl=document.getElementById("menu-block");
 const loadBlockEl=document.getElementById("load-block");
 const loadListEl=document.getElementById("load-list");
@@ -218,7 +217,6 @@ function renderNaming(){
 }
 function escapeHTML(str){return str.replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 
-// input
 window.addEventListener("keydown",e=>{
   if(e.key==="Escape"&&state.mode!=="title"){toTitle();return;}
 

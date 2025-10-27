@@ -1,48 +1,63 @@
-// COZY FARM STARTUP SCREEN LOGIC
+// COZY FARM title screen logic
+
 const state = {
-  mode: "start",
-  menuIndex: 0,
+  mode: "title", // "title" | "loadMenu" | "naming" | "game"
+  saves: [
+    // We'll fill these properly in the next step when we add load selection:
+    // { name: "FARM_01", day: 12, coins: 342 },
+    // { name: "COW_TOWN", day: 3, coins: 58 },
+  ],
 };
 
-const menuOptions = [
-  { labelActive: "> NEW WORLD", labelInactive: "  NEW WORLD" },
-  { labelActive: "> LOAD", labelInactive: "  LOAD" },
-];
+const loadListEl = document.getElementById("load-list");
 
-const menuOptionEls = document.querySelectorAll(".menu-option");
-
-function renderMenu() {
-  menuOptionEls.forEach((el) => {
-    const idx = parseInt(el.getAttribute("data-index"), 10);
-    const active = idx === state.menuIndex;
-    el.textContent = active
-      ? menuOptions[idx].labelActive
-      : menuOptions[idx].labelInactive;
-    el.classList.toggle("active", active);
-  });
-}
-
-function handleUp() {
-  state.menuIndex = (state.menuIndex - 1 + menuOptions.length) % menuOptions.length;
-  renderMenu();
-}
-function handleDown() {
-  state.menuIndex = (state.menuIndex + 1) % menuOptions.length;
-  renderMenu();
-}
-function handleSelect() {
-  if (state.menuIndex === 0) {
-    console.log("Selected: NEW WORLD");
-  } else {
-    console.log("Selected: LOAD");
+// Renders the dropdown under [L] load game
+function renderLoadList() {
+  if (!state.saves || state.saves.length === 0) {
+    loadListEl.textContent = "  (no save files found)";
+    return;
   }
+
+  // numbered list like:
+  // 1) FARM_01  Day 12  £342
+  // 2) ...
+  const lines = state.saves.map((sv, i) => {
+    return `${i + 1}) ${sv.name}  Day ${sv.day}  £${sv.coins}`;
+  });
+  loadListEl.textContent = lines.join("\n");
 }
 
+// Open load menu (shows dropdown)
+function openLoadMenu() {
+  state.mode = "loadMenu";
+  loadListEl.classList.remove("hidden");
+  renderLoadList();
+}
+
+// Begin new game flow (naming comes next step)
+function startNewGameFlow() {
+  state.mode = "naming";
+  console.log("NEW GAME: ask player to name farm, then confirm [Y] to start");
+  // In next step we'll actually show text input UI on screen.
+}
+
+// Key handling
 window.addEventListener("keydown", (e) => {
-  if (state.mode !== "start") return;
-  if (["ArrowUp", "w", "W"].includes(e.key)) handleUp();
-  if (["ArrowDown", "s", "S"].includes(e.key)) handleDown();
-  if (e.key === "Enter") handleSelect();
+  if (state.mode === "title") {
+    if (e.key === "n" || e.key === "N") {
+      startNewGameFlow();
+    } else if (e.key === "l" || e.key === "L") {
+      openLoadMenu();
+    }
+  } else if (state.mode === "loadMenu") {
+    // Player can choose which save by pressing number key.
+    if (e.key >= "0" && e.key <= "9") {
+      console.log("LOAD SAVE SLOT", e.key);
+      // Next step: actually load slot e.key and move to mode "game".
+    }
+  } else if (state.mode === "naming") {
+    // Next step we'll capture text here
+    console.log("typing farm name:", e.key);
+  }
 });
 
-renderMenu();

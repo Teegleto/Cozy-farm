@@ -1,7 +1,10 @@
+/* BUILD: TERMINAL-GREEN */
+
 :root {
   --bg: #000000;
-  --text-main: #00ff66; /* terminal green */
-  --glow: #00ff6680;
+  --text-main: #00ff66; /* neon green */
+  --scanline-light: rgba(0,255,100,0.05);
+  --scanline-dark: rgba(0,0,0,0.15);
 }
 
 * {
@@ -10,6 +13,7 @@
   padding: 0;
 }
 
+/* full-screen black */
 body {
   background: var(--bg);
   color: var(--text-main);
@@ -20,55 +24,83 @@ body {
   align-items: center;
   user-select: none;
   overflow: hidden;
+  position: relative;
 }
 
-/* overall container */
+/* green CRT glow / veneer effect over entire body */
+body::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* faint scanlines */
+  background-image:
+    repeating-linear-gradient(
+      to bottom,
+      var(--scanline-light) 0px,
+      var(--scanline-dark) 2px,
+      rgba(0,0,0,0) 3px
+    );
+  mix-blend-mode: screen;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* container for all content */
 #screen {
-  text-align: center;
+  position: relative;
+  width: 100vw;
+  height: 100vh;
   color: var(--text-main);
+  text-shadow: 0 0 6px #00ff66cc, 0 0 12px #00ff6633;
+  font-smooth: never;
+  -webkit-font-smoothing: none;
+
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
-  text-shadow: 0 0 6px var(--glow), 0 0 12px var(--glow);
 }
 
-/* ASCII title */
+/* TITLE BLOCK (top-ish middle) */
 #title-block {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  line-height: 1.2;
+  position: absolute;
+  top: 10vh;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: left; /* keep ASCII spacing intact */
+  color: var(--text-main);
   max-width: 95vw;
   overflow-x: auto;
+  line-height: 1.2;
 }
 
 #ascii-title {
-  font-size: 0.8rem;
+  font-size: 0.7rem;      /* slightly smaller now */
   line-height: 1.15;
   color: var(--text-main);
   white-space: pre;
   margin-bottom: 1rem;
-  text-align: left;
+  text-shadow: 0 0 6px #00ff66cc, 0 0 16px #00ff6633;
 }
 
 #version {
-  font-size: 1rem;
+  font-size: 0.9rem;
+  opacity: 0.8;
   color: var(--text-main);
-  opacity: 0.85;
+  text-shadow: 0 0 4px #00ff66aa;
   text-align: center;
 }
 
-/* menu positioned lower and offset 1/3 across screen */
+/* MENU BLOCK (1/3 across screen, pushed down) */
 #menu-block {
   position: absolute;
-  bottom: 18%;
-  left: 33%;
+  top: 50vh;        /* push it down */
+  left: 33vw;       /* ~one-third across horizontally */
+  transform: translateY(-10%);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   line-height: 1.8;
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: var(--text-main);
 }
 
@@ -77,12 +109,14 @@ body {
   white-space: pre;
   font-family: inherit;
   color: var(--text-main);
+  text-shadow: 0 0 6px #00ff66cc, 0 0 12px #00ff6633;
 }
 
+/* hidden load list (will appear under [L]) */
 #load-list {
   margin-top: -0.5rem;
   padding-left: 2rem;
-  font-size: 1rem;
+  font-size: 0.9rem;
   line-height: 1.4;
   text-align: left;
   white-space: pre;
@@ -93,33 +127,17 @@ body {
   display: none;
 }
 
-/* subtle veneer / glow overlay (optional aesthetic layer) */
-body::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(0,255,100,0.04) 0px,
-    rgba(0,0,0,0.02) 2px,
-    rgba(0,0,0,0.02) 3px
-  );
-  mix-blend-mode: lighten;
-  pointer-events: none;
-  opacity: 0.4;
-}
-
-/* bottom hint text */
+/* hint line at bottom center */
 #hint-line {
+  position: absolute;
+  bottom: 6vh;
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 0.8rem;
   color: var(--text-main);
-  opacity: 0.6;
+  opacity: 0.4;
   line-height: 1.4;
-  margin-top: 1rem;
-  text-align: center;
   font-family: inherit;
-  position: absolute;
-  bottom: 5%;
-  left: 0;
-  right: 0;
+  text-align: center;
+  text-shadow: 0 0 4px #00ff6699;
 }

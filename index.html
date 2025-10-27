@@ -5,25 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>COZY FARM</title>
 <style>
-/* =========================
-   TERMINAL GREEN LAYOUT
-   =========================
-   TUNING KNOBS:
-   --menu-top: how low the menu block sits (vh from top of screen)
-   --gap-tight: vertical spacing between menu lines (em)
-
-   You said:
-   - Title position was good originally.
-   - Version position was good originally.
-   - Bottom hint position was good originally.
-   We are now FREEZING those.
-   We will ONLY move the block with [N] new game / [L] load game.
-   ========================= */
-
-:root {
-  --menu-top: 55vh;    /* <- move this up/down to taste */
-  --gap-tight: 0.4rem; /* <- spacing between [N] and [L] */
-}
+/* ROLLBACK TO FIRST GOOD LAYOUT + INTERACTION */
 
 html,body{
   height:100%;
@@ -60,7 +42,7 @@ body::after{
   user-select:none;
 }
 
-/* --- TITLE: FROZEN --- */
+/* TITLE */
 #ascii-title{
   position:absolute;
   top:10vh;
@@ -71,7 +53,7 @@ body::after{
   white-space:pre;
 }
 
-/* --- VERSION: FROZEN --- */
+/* VERSION */
 #version{
   position:absolute;
   top:39vh;
@@ -81,58 +63,45 @@ body::after{
   opacity:.8;
 }
 
-/* --- HINT (bottom help text): FROZEN --- */
-#hint{
+/* MENU BLOCK (this is what you liked originally) */
+#menu-block{
   position:absolute;
-  bottom:6vh;
-  left:50%;
-  transform:translateX(-50%);
-  font-size:0.8rem;
-  opacity:.4;
-  text-align:center;
-  line-height:1.4;
-}
-
-/* =========================================================
-   MENU / LOAD / NAMING BLOCK SLOT
-   This is now the ONLY thing you move.
-   ========================================================= */
-.block-slot{
-  position:absolute;
-  top:var(--menu-top);
+  top:55vh;
   left:33vw;
-
-  min-width:20rem;
-  max-width:60vw;
-
-  color:#00ff66;
   font-size:1.1rem;
-  line-height:1.6;
+  line-height:1.8; /* this was the roomy spacing from early version */
+  display:block;
   white-space:pre;
+  color:#00ff66;
   text-shadow:0 0 6px #00ff6699,0 0 14px #00ff6633;
 }
-
-/* MAIN MENU STATE */
-#menu-block{display:block;}
 .menu-line{
-  margin:var(--gap-tight) 0;
+  margin-bottom:1rem;
   white-space:pre;
 }
 
-/* LOAD MENU STATE */
+/* LOAD BLOCK (appears in same spot) */
 #load-block{
+  position:absolute;
+  top:55vh;
+  left:33vw;
+  font-size:1.1rem;
+  line-height:1.6;
   display:none;
   flex-direction:column;
+  white-space:pre;
+  color:#00ff66;
+  text-shadow:0 0 6px #00ff6699,0 0 14px #00ff6633;
 }
 #load-header{
-  margin-bottom:0.8rem;
+  margin-bottom:1rem;
   font-size:1rem;
   opacity:.8;
 }
 #load-list{
   display:flex;
   flex-direction:column;
-  gap:0.3rem;
+  gap:0.5rem;
   font-size:1rem;
   line-height:1.4;
   white-space:pre;
@@ -141,10 +110,18 @@ body::after{
   white-space:pre;
 }
 
-/* NAMING MODE STATE */
+/* NAMING BLOCK (same coordinates, replaces menu/load when active) */
 #naming-block{
+  position:absolute;
+  top:55vh;
+  left:33vw;
+  font-size:1.1rem;
+  line-height:1.6;
   display:none;
   flex-direction:column;
+  white-space:pre;
+  color:#00ff66;
+  text-shadow:0 0 6px #00ff6699,0 0 14px #00ff6633;
 }
 #farm-name-line{
   white-space:pre;
@@ -162,7 +139,19 @@ body::after{
   white-space:pre;
 }
 
-/* caret block for typing */
+/* BOTTOM HINT */
+#hint{
+  position:absolute;
+  bottom:6vh;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:0.8rem;
+  opacity:.4;
+  text-align:center;
+  line-height:1.4;
+}
+
+/* caret during naming */
 .cursor{
   display:inline-block;
   width:0.6em;
@@ -186,21 +175,21 @@ body::after{
   <!-- VERSION -->
   <div id="version">v1.0.0</div>
 
-  <!-- MAIN MENU BLOCK -->
-  <div id="menu-block" class="block-slot">
+  <!-- MENU (DEFAULT VISIBLE) -->
+  <div id="menu-block">
     <div class="menu-line">[N] new game</div>
     <div class="menu-line">[L] load game</div>
     <div class="menu-line" style="font-size:0.9rem;opacity:.6;">[Esc] quit</div>
   </div>
 
-  <!-- LOAD MENU BLOCK -->
-  <div id="load-block" class="block-slot">
+  <!-- LOAD MENU (HIDDEN INITIALLY) -->
+  <div id="load-block">
     <div id="load-header">choose save (press number):    [Esc] back</div>
     <div id="load-list"></div>
   </div>
 
-  <!-- NAMING BLOCK -->
-  <div id="naming-block" class="block-slot">
+  <!-- NAMING MODE (HIDDEN INITIALLY) -->
+  <div id="naming-block">
     <div id="farm-name-line"></div>
     <div id="confirm-line"></div>
     <div id="naming-esc-hint">[Esc] back</div>
@@ -208,18 +197,16 @@ body::after{
 
   <!-- HINT -->
   <div id="hint">press the key shown in [ ] to continue</div>
-
 </div>
 
 <script>
 /*
-States:
-- "title": main menu with [N]/[L]
-- "loadMenu": show saves list, pick number
-- "naming": type farm name, confirm Y/N
-Esc always returns to title from sub-menus.
+State machine:
+- "title" = menu-block visible
+- "loadMenu" = load-block visible
+- "naming" = naming-block visible
+Esc returns to "title" from sub-screens
 */
-
 const state = {
   mode: "title",
   saves: [
@@ -239,16 +226,17 @@ const namingBlockEl = document.getElementById("naming-block");
 const farmNameLine  = document.getElementById("farm-name-line");
 const confirmLine   = document.getElementById("confirm-line");
 
-function toTitle(){
+function showTitle() {
   state.mode = "title";
   menuBlockEl.style.display   = "block";
   loadBlockEl.style.display   = "none";
   namingBlockEl.style.display = "none";
 }
 
-function toLoadMenu(){
+function showLoadMenu() {
   state.mode = "loadMenu";
 
+  // build vertical save list
   loadListEl.innerHTML = "";
   if (state.saves.length === 0) {
     const d = document.createElement("div");
@@ -256,7 +244,7 @@ function toLoadMenu(){
     d.textContent = "(no save files found)";
     loadListEl.appendChild(d);
   } else {
-    state.saves.forEach((sv, i) => {
+    state.saves.forEach((sv,i) => {
       const line = document.createElement("div");
       line.className = "load-slot-line";
       line.textContent =
@@ -270,7 +258,7 @@ function toLoadMenu(){
   namingBlockEl.style.display = "none";
 }
 
-function toNaming(){
+function showNaming() {
   state.mode = "naming";
   state.nameBuffer   = "";
   state.confirmReady = false;
@@ -282,7 +270,7 @@ function toNaming(){
   renderNaming();
 }
 
-function renderNaming(){
+function renderNaming() {
   if (!state.confirmReady) {
     farmNameLine.innerHTML =
       `Name your farm: ${escapeHTML(state.nameBuffer)}<span class="cursor">█</span>`;
@@ -299,20 +287,21 @@ function escapeHTML(str){
   return str.replace(/</g,"&lt;").replace(/>/g,"&gt;");
 }
 
+// input handling
 window.addEventListener("keydown", e => {
-  // Global ESC to go back to title, except if we're already there
+  // ESC = back to title (unless already in title)
   if (e.key === "Escape" && state.mode !== "title") {
-    toTitle();
+    showTitle();
     return;
   }
 
   if (state.mode === "title") {
     if (e.key === "n" || e.key === "N") {
-      toNaming();
+      showNaming();
       return;
     }
     if (e.key === "l" || e.key === "L") {
-      toLoadMenu();
+      showLoadMenu();
       return;
     }
     return;
@@ -323,7 +312,7 @@ window.addEventListener("keydown", e => {
       const idx = parseInt(e.key,10) - 1;
       if (state.saves[idx]) {
         console.log("LOAD SAVE SLOT:", idx+1, state.saves[idx]);
-        // Later: go into game with that save.
+        // this is where we would actually start the game using that save
       }
     }
     return;
@@ -333,7 +322,7 @@ window.addEventListener("keydown", e => {
     if (state.confirmReady) {
       if (e.key === "y" || e.key === "Y") {
         console.log("START GAME:", state.nameBuffer);
-        // Later: actually enter game view
+        // here we would launch the in-game view
         return;
       }
       if (e.key === "n" || e.key === "N") {
@@ -352,7 +341,7 @@ window.addEventListener("keydown", e => {
     }
 
     if (e.key === "Backspace") {
-      state.nameBuffer = state.nameBuffer.slice(0, -1);
+      state.nameBuffer = state.nameBuffer.slice(0,-1);
       renderNaming();
       return;
     }
@@ -367,8 +356,8 @@ window.addEventListener("keydown", e => {
   }
 });
 
-// initial render
-toTitle();
+// first draw
+showTitle();
 </script>
 </body>
 </html>

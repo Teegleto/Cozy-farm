@@ -1,15 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>COZY FARM</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COZY FARM</title>
+<style>
+/* ==== TERMINAL GREEN SINGLE-FILE TEST ==== */
+html,body{
+  height:100%;
+  margin:0;
+  background:#000;
+  color:#00ff66;
+  font-family:"Courier New",Courier,monospace;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  overflow:hidden;
+}
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:repeating-linear-gradient(
+    to bottom,
+    rgba(0,255,100,0.05) 0px,
+    rgba(0,0,0,0.15) 2px,
+    rgba(0,0,0,0) 3px
+  );
+  pointer-events:none;
+  opacity:.4;
+}
+#screen{
+  position:relative;
+  width:100vw;
+  height:100vh;
+  color:#00ff66;
+  text-shadow:0 0 6px #00ff6699,0 0 14px #00ff6633;
+}
+#ascii-title{
+  position:absolute;
+  top:10vh;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:0.75rem;
+  line-height:1.1;
+  white-space:pre;
+}
+#version{
+  position:absolute;
+  top:39vh;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:1rem;
+  opacity:.8;
+}
+#menu-block{
+  position:absolute;
+  top:55vh;
+  left:33vw;
+  font-size:1.1rem;
+  line-height:1.8;
+}
+#hint{
+  position:absolute;
+  bottom:6vh;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:0.8rem;
+  opacity:.4;
+}
+</style>
 </head>
 <body>
-  <div id="screen">
-    <!-- TITLE BLOCK -->
-    <div id="title-block">
+<div id="screen">
 <pre id="ascii-title">
  ██████╗    ██████╗   ███████╗  ██╗   ██╗      ███████╗    █████╗    ██████╗    ███╗   ███╗  
 ██╔════╝   ██╔═══██╗  ╚══███╔╝  ╚██╗ ██╔╝      ██╔════╝   ██╔══██╗   ██╔══██╗   ████╗ ████║  
@@ -18,22 +81,12 @@
 ╚██████╗   ╚██████╔╝  ███████╗     ██║         ██║        ██║  ██║   ██║  ██║   ██║ ╚═╝ ██║  
  ╚═════╝    ╚═════╝   ╚══════╝     ╚═╝         ╚═╝        ╚═╝  ╚═╝   ╚═╝  ╚═╝   ╚═╝     ╚═╝  
 </pre>
-      <div id="version">v1.0.0</div>
-    </div>
-
-    <!-- MENU BLOCK -->
-    <div id="menu-block">
-      <div class="menu-line">[N] new game</div>
-      <div class="menu-line">[L] load game</div>
-      <div id="load-list" class="hidden"></div>
-    </div>
-
-    <!-- HINT -->
-    <div id="hint-line">
-      press the key shown in [ ] to continue
-    </div>
-  </div>
-
-  <script src="game.js"></script>
+<div id="version">v1.0.0</div>
+<div id="menu-block">
+  <div>[N] new game</div>
+  <div>[L] load game</div>
+</div>
+<div id="hint">press the key shown in [ ] to continue</div>
+</div>
 </body>
 </html>

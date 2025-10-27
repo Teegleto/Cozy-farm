@@ -5,154 +5,116 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>COZY FARM</title>
 <style>
-/* FINAL TERMINAL BUILD */
-
-/* global layout / CRT vibe */
-html, body {
-  height: 100%;
-  margin: 0;
-  background: #000;
-  color: #00ff66;
-  font-family: "Courier New", Courier, monospace;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
+/* --- TERMINAL GREEN FINAL BUILD --- */
+html,body{
+  height:100%;
+  margin:0;
+  background:#000;
+  color:#00ff66;
+  font-family:"Courier New",Courier,monospace;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  overflow:hidden;
 }
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: repeating-linear-gradient(
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:repeating-linear-gradient(
     to bottom,
     rgba(0,255,100,0.05) 0px,
     rgba(0,0,0,0.15) 2px,
     rgba(0,0,0,0) 3px
   );
-  pointer-events: none;
-  opacity: 0.4;
+  pointer-events:none;
+  opacity:.4;
 }
-#screen {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  color: #00ff66;
-  text-shadow: 0 0 6px #00ff6699, 0 0 14px #00ff6633;
-  font-smooth: never;
-  -webkit-font-smoothing: none;
-  user-select: none;
-}
-
-/* --- STATIC TOP SECTION (title + version) --- */
-#ascii-title {
-  position: absolute;
-  top: 10vh;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.75rem;
-  line-height: 1.1;
-  white-space: pre;
-}
-#version {
-  position: absolute;
-  top: 38vh; /* keep version locked under title */
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 1rem;
-  opacity: 0.8;
+#screen{
+  position:relative;
+  width:100vw;
+  height:100vh;
+  color:#00ff66;
+  text-shadow:0 0 6px #00ff6699,0 0 14px #00ff6633;
+  font-smooth:never;
+  -webkit-font-smoothing:none;
+  user-select:none;
 }
 
-/* --- SHARED BLOCK POSITION FOR MENUS --- */
-/* all three states (main menu, load list, naming) render in SAME slot */
-.block-slot {
-  position: absolute;
-  top: 52vh;        /* just under version */
-  left: 33vw;       /* about one-third from the left */
-  min-width: 20rem;
-  max-width: 60vw;
-  color: #00ff66;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  white-space: pre;
-  text-shadow: 0 0 6px #00ff6699, 0 0 14px #00ff6633;
+/* --- TITLE + VERSION --- */
+#ascii-title{
+  position:absolute;
+  top:10vh;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:0.75rem;
+  line-height:1.1;
+  white-space:pre;
+}
+#version{
+  position:absolute;
+  top:38vh;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:1rem;
+  opacity:.8;
 }
 
-/* --- MAIN MENU BLOCK --- */
-#menu-block {
-  display: block;
-}
-.menu-line {
-  margin: 0.4rem 0;
-  white-space: pre;
-}
-
-/* --- LOAD MENU BLOCK --- */
-#load-block {
-  display: none;
-  flex-direction: column;
-}
-#load-header {
-  margin-bottom: 0.8rem;
-  font-size: 1rem;
-  opacity: 0.8;
-}
-#load-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  font-size: 1rem;
-  line-height: 1.4;
-  white-space: pre;
-}
-.load-slot-line {
-  white-space: pre;
+/* --- SHARED BLOCK SLOT FOR MENUS --- */
+.block-slot{
+  position:absolute;
+  top:62vh;       /* lower overall position */
+  left:33vw;
+  min-width:20rem;
+  max-width:60vw;
+  color:#00ff66;
+  font-size:1.1rem;
+  line-height:1.4; /* tighter spacing */
+  white-space:pre;
+  text-shadow:0 0 6px #00ff6699,0 0 14px #00ff6633;
 }
 
-/* --- NAMING BLOCK --- */
-#naming-block {
-  display: none;
-  flex-direction: column;
-}
-#farm-name-line {
-  white-space: pre;
-}
-#confirm-line {
-  margin-top: 1rem;
-  font-size: 1rem;
-  opacity: 0.8;
-  white-space: pre;
-}
-#naming-esc-hint {
-  margin-top: 1rem;
-  font-size: 0.9rem;
-  opacity: 0.6;
-  white-space: pre;
-}
+/* MAIN MENU */
+#menu-block{display:block;}
+.menu-line{margin:0.2rem 0;white-space:pre;}
 
-/* --- bottom hint text --- */
-#hint {
-  position: absolute;
-  bottom: 6vh;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.8rem;
-  opacity: 0.4;
-  text-align: center;
-  line-height: 1.4;
+/* LOAD MENU */
+#load-block{display:none;flex-direction:column;}
+#load-header{margin-bottom:0.8rem;font-size:1rem;opacity:.8;}
+#load-list{
+  display:flex;
+  flex-direction:column;
+  gap:0.3rem;
+  font-size:1rem;
+  line-height:1.4;
+  white-space:pre;
 }
+.load-slot-line{white-space:pre;}
 
-/* caret used during naming */
-.cursor {
-  display: inline-block;
-  width: 0.6em;
-  text-align: left;
+/* NAMING MODE */
+#naming-block{display:none;flex-direction:column;}
+#farm-name-line{white-space:pre;}
+#confirm-line{margin-top:1rem;font-size:1rem;opacity:.8;white-space:pre;}
+#naming-esc-hint{margin-top:1rem;font-size:0.9rem;opacity:.6;white-space:pre;}
+
+/* bottom hint */
+#hint{
+  position:absolute;
+  bottom:6vh;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:0.8rem;
+  opacity:.4;
+  text-align:center;
+  line-height:1.4;
 }
+.cursor{display:inline-block;width:0.6em;text-align:left;}
 </style>
 </head>
 <body>
 <div id="screen">
 
-  <!-- ASCII TITLE -->
+<!-- ASCII TITLE -->
 <pre id="ascii-title">
  ██████╗    ██████╗   ███████╗  ██╗   ██╗      ███████╗    █████╗    ██████╗    ███╗   ███╗  
 ██╔════╝   ██╔═══██╗  ╚══███╔╝  ╚██╗ ██╔╝      ██╔════╝   ██╔══██╗   ██╔══██╗   ████╗ ████║  
@@ -162,206 +124,131 @@ body::after {
  ╚═════╝    ╚═════╝   ╚══════╝     ╚═╝         ╚═╝        ╚═╝  ╚═╝   ╚═╝  ╚═╝   ╚═╝     ╚═╝  
 </pre>
 
-  <!-- VERSION TEXT -->
-  <div id="version">v1.0.0</div>
+<!-- VERSION -->
+<div id="version">v1.0.0</div>
 
-  <!-- MAIN MENU STATE -->
-  <div id="menu-block" class="block-slot">
-    <div class="menu-line">[N] new game</div>
-    <div class="menu-line">[L] load game</div>
-    <div class="menu-line" style="font-size:0.9rem;opacity:.6;">[Esc] quit</div>
-  </div>
+<!-- MAIN MENU -->
+<div id="menu-block" class="block-slot">
+  <div class="menu-line">[N] new game</div>
+  <div class="menu-line">[L] load game</div>
+  <div class="menu-line" style="font-size:0.9rem;opacity:.6;">[Esc] quit</div>
+</div>
 
-  <!-- LOAD MENU STATE -->
-  <div id="load-block" class="block-slot">
-    <div id="load-header">choose save (press number):    [Esc] back</div>
-    <div id="load-list"></div>
-  </div>
+<!-- LOAD MENU -->
+<div id="load-block" class="block-slot">
+  <div id="load-header">choose save (press number):    [Esc] back</div>
+  <div id="load-list"></div>
+</div>
 
-  <!-- NAMING STATE -->
-  <div id="naming-block" class="block-slot">
-    <div id="farm-name-line"></div>
-    <div id="confirm-line"></div>
-    <div id="naming-esc-hint">[Esc] back</div>
-  </div>
+<!-- NAMING MODE -->
+<div id="naming-block" class="block-slot">
+  <div id="farm-name-line"></div>
+  <div id="confirm-line"></div>
+  <div id="naming-esc-hint">[Esc] back</div>
+</div>
 
-  <!-- BOTTOM HINT -->
-  <div id="hint">press the key shown in [ ] to continue</div>
+<!-- HINT -->
+<div id="hint">press the key shown in [ ] to continue</div>
+
 </div>
 
 <script>
-/*
-GAME STATES:
-"title"     -> main menu
-"loadMenu"  -> choosing save slot number
-"naming"    -> entering name, then confirming Y/N
-"game"      -> (not yet)
-
-Escape always takes you back to "title" from loadMenu or naming.
-*/
-
-const state = {
-  mode: "title",
-  saves: [
-    { name: "FARM_01",  day: 12, coins: 342 },
-    { name: "COW_TOWN", day:  3, coins: 58  },
-    { name: "PIGHAVEN", day:  7, coins: 199 }
+const state={
+  mode:"title",
+  saves:[
+    {name:"FARM_01",day:12,coins:342},
+    {name:"COW_TOWN",day:3,coins:58},
+    {name:"PIGHAVEN",day:7,coins:199}
   ],
-  nameBuffer: "",
-  confirmReady: false // after Enter in naming mode
+  nameBuffer:"",
+  confirmReady:false
 };
 
-// DOM refs
-const menuBlockEl   = document.getElementById("menu-block");
-const loadBlockEl   = document.getElementById("load-block");
-const loadListEl    = document.getElementById("load-list");
-const namingBlockEl = document.getElementById("naming-block");
-const farmNameLine  = document.getElementById("farm-name-line");
-const confirmLine   = document.getElementById("confirm-line");
+// refs
+const menuBlockEl=document.getElementById("menu-block");
+const loadBlockEl=document.getElementById("load-block");
+const loadListEl=document.getElementById("load-list");
+const namingBlockEl=document.getElementById("naming-block");
+const farmNameLine=document.getElementById("farm-name-line");
+const confirmLine=document.getElementById("confirm-line");
 
-// ---- RENDERERS ----
-
-function toTitle() {
-  state.mode = "title";
-  menuBlockEl.style.display   = "block";
-  loadBlockEl.style.display   = "none";
-  namingBlockEl.style.display = "none";
+function toTitle(){
+  state.mode="title";
+  menuBlockEl.style.display="block";
+  loadBlockEl.style.display="none";
+  namingBlockEl.style.display="none";
 }
-
-function toLoadMenu() {
-  state.mode = "loadMenu";
-
-  // build vertical list of saves
-  loadListEl.innerHTML = "";
-  if (state.saves.length === 0) {
-    const noEl = document.createElement("div");
-    noEl.className = "load-slot-line";
-    noEl.textContent = "(no save files found)";
-    loadListEl.appendChild(noEl);
-  } else {
-    state.saves.forEach((sv, i) => {
-      const line = document.createElement("div");
-      line.className = "load-slot-line";
-      line.textContent =
-        (i+1) + ") " +
-        sv.name.padEnd(10, " ") +
-        " Day " + sv.day +
-        "   £" + sv.coins;
+function toLoadMenu(){
+  state.mode="loadMenu";
+  loadListEl.innerHTML="";
+  if(state.saves.length===0){
+    const d=document.createElement("div");
+    d.className="load-slot-line";
+    d.textContent="(no save files found)";
+    loadListEl.appendChild(d);
+  }else{
+    state.saves.forEach((sv,i)=>{
+      const line=document.createElement("div");
+      line.className="load-slot-line";
+      line.textContent=`${i+1}) ${sv.name.padEnd(10," ")} Day ${sv.day}   £${sv.coins}`;
       loadListEl.appendChild(line);
     });
   }
-
-  menuBlockEl.style.display   = "none";
-  loadBlockEl.style.display   = "block";
-  namingBlockEl.style.display = "none";
+  menuBlockEl.style.display="none";
+  loadBlockEl.style.display="flex";
+  namingBlockEl.style.display="none";
 }
-
-function toNaming() {
-  state.mode = "naming";
-  state.nameBuffer   = "";
-  state.confirmReady = false;
-  menuBlockEl.style.display   = "none";
-  loadBlockEl.style.display   = "none";
-  namingBlockEl.style.display = "block";
-  renderNamingScreen();
+function toNaming(){
+  state.mode="naming";
+  state.nameBuffer="";
+  state.confirmReady=false;
+  menuBlockEl.style.display="none";
+  loadBlockEl.style.display="none";
+  namingBlockEl.style.display="flex";
+  renderNaming();
 }
-
-function renderNamingScreen() {
-  if (!state.confirmReady) {
-    // typing
-    farmNameLine.innerHTML =
-      'Name your farm: ' +
-      escapeHTML(state.nameBuffer) +
-      '<span class="cursor">█</span>';
-
-    confirmLine.textContent = "Press Enter when done.";
-  } else {
-    // confirm
-    farmNameLine.innerHTML =
-      'Farm name: "' + escapeHTML(state.nameBuffer) + '"';
-    confirmLine.textContent =
-      'Start with this name? [Y]es / [N]o';
+function renderNaming(){
+  if(!state.confirmReady){
+    farmNameLine.innerHTML=`Name your farm: ${escapeHTML(state.nameBuffer)}<span class="cursor">█</span>`;
+    confirmLine.textContent="Press Enter when done.";
+  }else{
+    farmNameLine.innerHTML=`Farm name: "${escapeHTML(state.nameBuffer)}"`;
+    confirmLine.textContent='Start with this name? [Y]es / [N]o';
   }
 }
+function escapeHTML(str){return str.replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 
-function escapeHTML(str){
-  return str.replace(/</g,"&lt;").replace(/>/g,"&gt;");
-}
+// input
+window.addEventListener("keydown",e=>{
+  if(e.key==="Escape"&&state.mode!=="title"){toTitle();return;}
 
-// ---- INPUT ----
-window.addEventListener("keydown", (e) => {
-  // global ESC: return to title unless already in title
-  if (e.key === "Escape" && state.mode !== "title") {
-    toTitle();
+  if(state.mode==="title"){
+    if(e.key==="n"||e.key==="N"){toNaming();return;}
+    if(e.key==="l"||e.key==="L"){toLoadMenu();return;}
     return;
   }
 
-  if (state.mode === "title") {
-    if (e.key === "n" || e.key === "N") {
-      toNaming();
-      return;
-    }
-    if (e.key === "l" || e.key === "L") {
-      toLoadMenu();
-      return;
+  if(state.mode==="loadMenu"){
+    if(e.key>="1"&&e.key<="9"){
+      const idx=parseInt(e.key,10)-1;
+      if(state.saves[idx])console.log("LOAD SAVE SLOT:",idx+1,state.saves[idx]);
     }
     return;
   }
 
-  if (state.mode === "loadMenu") {
-    if (e.key >= "1" && e.key <= "9") {
-      const idx = parseInt(e.key,10) - 1;
-      if (state.saves[idx]) {
-        console.log("LOAD SAVE SLOT:", idx+1, state.saves[idx]);
-        // future: jump to game view using that save
-      }
-    }
-    return;
-  }
-
-  if (state.mode === "naming") {
-    if (state.confirmReady) {
-      // we are in Y/N confirm stage
-      if (e.key === "y" || e.key === "Y") {
-        console.log("START GAME with farm:", state.nameBuffer);
-        // future: go to game view here
-        return;
-      }
-      if (e.key === "n" || e.key === "N") {
-        // restart typing name from scratch
-        state.nameBuffer   = "";
-        state.confirmReady = false;
-        renderNamingScreen();
-        return;
-      }
+  if(state.mode==="naming"){
+    if(state.confirmReady){
+      if(e.key==="y"||e.key==="Y"){console.log("START GAME:",state.nameBuffer);return;}
+      if(e.key==="n"||e.key==="N"){state.nameBuffer="";state.confirmReady=false;renderNaming();return;}
       return;
     }
-
-    // still typing the name
-    if (e.key === "Enter") {
-      state.confirmReady = true;
-      renderNamingScreen();
-      return;
+    if(e.key==="Enter"){state.confirmReady=true;renderNaming();return;}
+    if(e.key==="Backspace"){state.nameBuffer=state.nameBuffer.slice(0,-1);renderNaming();return;}
+    if(/^[a-zA-Z0-9 _-]$/.test(e.key)){
+      if(state.nameBuffer.length<20){state.nameBuffer+=e.key;renderNaming();}
     }
-
-    if (e.key === "Backspace") {
-      state.nameBuffer = state.nameBuffer.slice(0, -1);
-      renderNamingScreen();
-      return;
-    }
-
-    // allowed characters
-    if (/^[a-zA-Z0-9 _-]$/.test(e.key)) {
-      if (state.nameBuffer.length < 20) {
-        state.nameBuffer += e.key;
-        renderNamingScreen();
-      }
-    }
-    return;
   }
 });
-
-// initial draw
 toTitle();
 </script>
 </body>

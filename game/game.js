@@ -1,64 +1,70 @@
-import { WORLD_WIDTH, WORLD_HEIGHT, worldMap } from "./map.js";
+// ==================== game.js ====================
+// Main game engine: renders procedural map, handles camera movement,
+// draws animated ASCII terrain into <pre id="world-view">.
+
+import { getChunk, WORLD_WIDTH, WORLD_HEIGHT, VIEW_SIZE } from "./map.js";
 import { TILESET } from "./tileset.js";
+import { clamp } from "./utils.js";
 
 const worldViewEl = document.getElementById("world-view");
 
-// camera size in characters actually shown on screen at once
-// we'll show a square "viewport" of the large world
-const VIEW_SIZE = 80; // 80x80 visible slice
-
-// camera top-left in the big 160x160 world
+// --- camera ---
 let camX = 0;
 let camY = 0;
+const camSpeed = 10; // tiles per key press
+const keys = {};
 
-// simple tick for animation
+// --- animation ---
 let tick = 0;
+const FRAME_INTERVAL = 150; // ms per frame
 
-// render loop
+// --- input ---
+window.addEventListener("keydown", (e) => {
+  keys[e.key.toLowerCase()] = true;
+});
+window.addEventListener("keyup", (e) => {
+  keys[e.key.toLowerCase()] = false;
+});
+
+// --- movement update ---
+function updateCamera() {
+  if (keys["w"] || keys["arrowup"]) camY -= camSpeed;
+  if (keys["s"] || keys["arrowdown"]) camY += camSpeed;
+  if (keys["a"] || keys["arrowleft"]) camX -= camSpeed;
+  if (keys["d"] || keys["arrowright"]) camX += camSpeed;
+
+  camX = clamp(camX, 0, WORLD_WIDTH - VIEW_SIZE);
+  camY = clamp(camY, 0, WORLD_HEIGHT - VIEW_SIZE);
+}
+
+// --- rendering ---
 function renderFrame() {
   tick++;
 
-  // build lines into a big string with spans per tile
-  let out = "";
+  updateCamera();
 
-  for (let row = 0; row < VIEW_SIZE; row++) {
-    const worldY = camY + row;
-    if (worldY < 0 || worldY >= WORLD_HEIGHT) {
-      // off-map safety (shouldn't really happen with cam 0,0)
-      out += "\n";
-      continue;
-    }
+  const chunk = getChunk(camX, camY, VIEW_SIZE);
+  const outLines = [];
 
+  // choose animation frame index
+  const frameIndex = Math.floor((tick / 5) % 4);
+
+  for (let y = 0; y < chunk.length; y++) {
+    const row = chunk[y];
     let line = "";
-
-    // build each column in this row
-    for (let col = 0; col < VIEW_SIZE; col++) {
-      const worldX = camX + col;
-      if (worldX < 0 || worldX >= WORLD_WIDTH) {
-        line += " ";
-        continue;
-      }
-
-      const tileCode = worldMap[worldY].charAt(worldX);
-      const tileInfo = TILESET[tileCode] || TILESET["?"];
-
-      // pick animation frame A/B based on tick
-      const useAlt = (tick % 20 < 10); // slow pulse
-      const glyph = useAlt && tileInfo.glyphB ? tileInfo.glyphB : tileInfo.glyphA;
-      const color = useAlt && tileInfo.colorB ? tileInfo.colorB : tileInfo.colorA;
-
-      line += `<span style="color:${color}">${glyph}</span>`;
+    for (let x = 0; x < row.length; x++) {
+      const symbol = row[x];
+      const tile = TILESET[symbol] || TILESET[" "];
+      const frames = tile.frames;
+      const f = frames[frameIndex % frames.length];
+      line += `<span style="color:${f.color}">${f.glyph}</span>`;
     }
-
-    out += line + "\n";
+    outLines.push(line);
   }
 
-  worldViewEl.innerHTML = out;
+  worldViewEl.innerHTML = outLines.join("\n");
 }
 
-// basic game loop
-setInterval(renderFrame, 200); // ~5fps vibe flicker, cozy not frantic
+// --- main loop ---
+setInterval(renderFrame, FRAME_INTERVAL);
 renderFrame();
-
-// TODO: later we'll add keyboard listeners to move camera/player
-// and update HUD live.

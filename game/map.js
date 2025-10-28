@@ -1,125 +1,80 @@
-export const WORLD_WIDTH = 160;
-export const WORLD_HEIGHT = 160;
+// ==================== map.js ====================
+// Procedural world generator for Cozy Farm.
+// World = 16000 × 16000 tiles, deterministic from noise.
+// Only a 160 × 160 window is rendered at a time.
 
-// helper to pad/trim a row string to exactly WORLD_WIDTH
-function fit(row) {
-  if (row.length > WORLD_WIDTH) return row.slice(0, WORLD_WIDTH);
-  if (row.length < WORLD_WIDTH) {
-    return row + "G".repeat(WORLD_WIDTH - row.length); // fill rest with grass
+import { heightNoise, randomSeeded } from "./utils.js";
+
+// constants
+export const WORLD_WIDTH  = 16000;
+export const WORLD_HEIGHT = 16000;
+export const VIEW_SIZE    = 160; // visible chunk size
+
+// ----------------------------------------------
+// Generate a single tile code for world position (x,y)
+// ----------------------------------------------
+export function generateTile(x, y) {
+  // basic terrain height and randomness
+  const h = heightNoise(x, y);
+  const r = randomSeeded(x, y);
+
+  // base terrain choice
+  if (h < 0.18) return "~"; // deep water
+  if (h < 0.22) return "▓"; // grass edge
+  if (h < 0.45) {
+    // farmland or pasture
+    if (r < 0.1) return "▲"; // crops patch
+    if (r < 0.12) return "╬"; // fence post
+    return "▒"; // soil / dirt
   }
-  return row;
+  if (h < 0.55) return "▓"; // grassland
+  if (h < 0.65) {
+    if (r < 0.01) return "◎"; // tractor/machine
+    return "▓";               // pasture
+  }
+  if (h < 0.75) {
+    if (r < 0.02) return "█"; // barn
+    if (r < 0.04) return "╬"; // fence
+    return "▒";
+  }
+  if (h < 0.9) {
+    if (r < 0.01) return "█"; // farmhouse / building
+    return "▓";
+  }
+  // rare sparkle of machinery at top elevations
+  return r < 0.005 ? "◎" : "▓";
 }
 
-/*
-Legend:
-H = farmhouse block
-F = fence
-A = animal
-B = barn / shed
-T = tractor yard
-R = roadway / track
-D = dirt / tilled soil
-C = crops
-G = grass / pasture
-W = water
-@ = player start position (near bottom-ish of main area)
-*/
+// ----------------------------------------------
+// Get a visible chunk (2D slice) of the world
+// ----------------------------------------------
+export function getChunk(camX, camY, size = VIEW_SIZE) {
+  const chunk = [];
+  const startX = Math.floor(camX);
+  const startY = Math.floor(camY);
 
-// --- High-detail bands we'll repeat/stack ---
+  for (let y = 0; y < size; y++) {
+    let row = "";
+    for (let x = 0; x < size; x++) {
+      const wx = startX + x;
+      const wy = startY + y;
+      if (wx < 0 || wy < 0 || wx >= WORLD_WIDTH || wy >= WORLD_HEIGHT) {
+        row += " ";
+      } else {
+        row += generateTile(wx, wy);
+      }
+    }
+    chunk.push(row);
+  }
 
-// 1. Farmhouse + yard + fenced animals (top rows)
-const farmhouseRow1 =
-  "HHHHHHHHHHHHHHHHHHFFFFFGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG" +
-  "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG";
-const farmhouseRow2 =
-  "HHHHHHHHHHHHHHHHHHF###FGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG" +
-  "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG".replace(/#/g,"A");
-const farmhouseRow3 =
-  "HHHHHHHHHHHHHHHHHHF###FGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG" +
-  "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG".replace(/#/g,"A");
-const farmhouseRow4 =
-  "HHHHHHHHHHHHHHHHHHFFFFFGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG" +
-  "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG";
-
-// 2. Barn / tractor yard / service area
-const barnRow1 =
-  "GGGGGBBBBBBBBGGGGGRRRRRGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG" +
-  "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG";
-const barnRow2 =
-  "GGGGGBBTTTBBBGGGGGRRRRRGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG" +
-  "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG";
-const barnRow3 =
-  "GGGGGBBBBBBBBGGGGGRRRRRGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG" +
-  "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG";
-
-// 3. Road running vertically with fields
-// Mix of dirt rows and planted crops rows
-const fieldRowD =
-  "DDDDDDDDDDDDDDDDDDDRRRRRDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD" +
-  "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDGGGGGGGGGGGGGGGGGGGG";
-const fieldRowC =
-  "DDDDDDDDDDDDDDDDDDDRRRRRDDDCCCDDCCCDDCCCDDCCCDDCCCDDCCCDDD" +
-  "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDGGGGGGGGGGGGGGGGGGGG"
-  .padEnd(160,"G")
-  .slice(0,160);
-
-// 4. Water / pond edge to the right
-const waterRow1 =
-  "DDDDDDDDDDDDDDDDDDDRRRRRDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD" +
-  "DDDDDDDDDDDDDDDDDDDDDDDDDGGGGGGGGGGGWWWWWWWWWWWWWWWGGGGGGG";
-const waterRow2 =
-  "GGGGGGGGGGGGGGGGGGGRRRRRGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG" +
-  "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGWWWLWWWLWWWLWWWLGGGGGGGGG".replace(/L/g,"W");
-
-// 5. Player start row (puts @ somewhere visible-ish)
-const playerRow =
-  "DDDDDDDDDDDDDDDDDDDRRRRRDDDCCCDDCCCDDCCCDDCCCDDCCCDDCCCDDD" +
-  "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDGGGGGGGGGWWWGGGGG@GG"
-  .padEnd(160,"G")
-  .slice(0,160);
-
-// 6. Fallback pasture / filler rows for bottom extents
-const pastureRow =
-  "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG" +
-  "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG";
-
-// now build the 160 rows
-const rows = [];
-
-// Top farmhouse block
-rows.push(fit(farmhouseRow1));
-rows.push(fit(farmhouseRow2));
-rows.push(fit(farmhouseRow3));
-rows.push(fit(farmhouseRow4));
-
-// Blend down into barn/tractor block
-rows.push(fit(barnRow1));
-rows.push(fit(barnRow2));
-rows.push(fit(barnRow3));
-rows.push(fit(barnRow3));
-rows.push(fit(barnRow1));
-
-// Now many rows of alternating dirt/crop/road, some with water edge,
-// to build vertical farm depth
-for (let i=0; i<20; i++){
-  rows.push(fit(fieldRowD));
-  rows.push(fit(fieldRowC));
-  rows.push(fit(waterRow1));
-  rows.push(fit(fieldRowD));
-  rows.push(fit(waterRow2));
+  return chunk;
 }
 
-// Put special player row somewhere in the lower-middle
-rows.push(fit(playerRow));
-
-// Then fill the rest up to 160 rows with pasture
-while (rows.length < WORLD_HEIGHT) {
-  rows.push(fit(pastureRow));
+// ----------------------------------------------
+// Optional helper: wrap coords (infinite feel)
+// ----------------------------------------------
+export function wrapCoord(v, max) {
+  if (v < 0) return max + (v % max);
+  if (v >= max) return v % max;
+  return v;
 }
-
-// If somehow we overshot, trim:
-while (rows.length > WORLD_HEIGHT) {
-  rows.pop();
-}
-
-export const worldMap = rows;

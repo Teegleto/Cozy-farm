@@ -40,15 +40,24 @@ body::after{
   -webkit-font-smoothing:none;
 }
 
-/* title (now includes version) */
+/* title + version */
 #ascii-title{
   position:absolute;
-  top:10vh;
+  top:8vh;
   left:50%;
   transform:translateX(-50%);
   font-size:0.75rem;
   line-height:1.1;
   white-space:pre;
+}
+#version{
+  position:absolute;
+  top:calc(8vh + 12rem); /* slightly lower below the ASCII logo */
+  left:50%;
+  transform:translateX(-50%);
+  font-size:1rem;
+  opacity:.8;
+  text-align:center;
 }
 
 /* menu block (main menu mode) */
@@ -121,7 +130,7 @@ body::after{
 <body>
 <div id="screen">
 
-  <!-- TITLE (version now part of same pre block) -->
+  <!-- TITLE -->
 <pre id="ascii-title">
  ██████╗    ██████╗   ███████╗  ██╗   ██╗      ███████╗    █████╗    ██████╗    ███╗   ███╗  
 ██╔════╝   ██╔═══██╗  ╚══███╔╝  ╚██╗ ██╔╝      ██╔════╝   ██╔══██╗   ██╔══██╗   ████╗ ████║  
@@ -129,9 +138,10 @@ body::after{
 ██║        ██║   ██║   ███╔╝      ╚██╔╝        ██╔══╝     ██╔══██║   ██╔══██╗   ██║╚██╔╝██║  
 ╚██████╗   ╚██████╔╝  ███████╗     ██║         ██║        ██║  ██║   ██║  ██║   ██║ ╚═╝ ██║  
  ╚═════╝    ╚═════╝   ╚══════╝     ╚═╝         ╚═╝        ╚═╝  ╚═╝   ╚═╝  ╚═╝   ╚═╝     ╚═╝  
-
-                                  v1.0.0
 </pre>
+
+  <!-- VERSION (now perfectly centered and spaced below the logo) -->
+  <div id="version">v1.0.0</div>
 
   <!-- MAIN MENU MODE -->
   <div id="menu-block">

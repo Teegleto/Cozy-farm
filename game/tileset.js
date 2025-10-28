@@ -1,103 +1,72 @@
+// ==================== tileset.js ====================
+// Defines how each terrain symbol is drawn & animated.
+
 export const TILESET = {
-  // Grass / pasture
-  "G": {
-    glyphA: "▓",
-    colorA: "#00aa00",
-    glyphB: "▓",
-    colorB: "#00bb00"
-  },
-
-  // Dirt / tilled soil
-  "D": {
-    glyphA: "▒",
-    colorA: "#8b4513", // earthy brown
-    glyphB: "▒",
-    colorB: "#7a3d12"
-  },
-
-  // Crop rows (swaying)
-  "C": {
-    glyphA: "█",
-    colorA: "#00cc00",
-    glyphB: "▓",
-    colorB: "#00dd00"
-  },
-
   // Water (shimmer)
-  "W": {
-    glyphA: "≈",
-    colorA: "#1e90ff",
-    glyphB: "≈",
-    colorB: "#3cb0ff"
+  "~": {
+    frames: [
+      { glyph: "~", color: "#1e90ff" },
+      { glyph: "≈", color: "#3cb0ff" },
+      { glyph: "∽", color: "#61c3ff" },
+      { glyph: "〰", color: "#1fa0ff" },
+    ],
   },
 
-  // Road / track
-  "R": {
-    glyphA: "═",
-    colorA: "#777777",
-    glyphB: "═",
-    colorB: "#6a6a6a"
+  // Grass / meadow
+  "▓": {
+    frames: [
+      { glyph: "▓", color: "#00aa00" },
+      { glyph: "▓", color: "#00bb00" },
+    ],
   },
 
-  // Fence / pen boundary
-  "F": {
-    glyphA: "┃",
-    colorA: "#c8c89b",
-    glyphB: "┃",
-    colorB: "#c8c89b"
+  // Soil / tilled dirt
+  "▒": {
+    frames: [
+      { glyph: "▒", color: "#8b4513" },
+      { glyph: "░", color: "#7a3d12" },
+    ],
   },
 
-  // Animal (cow / livestock blob)
-  "A": {
-    glyphA: "▣",
-    colorA: "#ffffff",
-    glyphB: "▣",
-    colorB: "#dddddd"
+  // Crops
+  "▲": {
+    frames: [
+      { glyph: "▲", color: "#00cc00" },
+      { glyph: "Δ", color: "#00ee00" },
+    ],
   },
 
-  // Barn / shed (warm)
-  "B": {
-    glyphA: "█",
-    colorA: "#ff5500",
-    glyphB: "█",
-    colorB: "#ff6a1a"
+  // Fence
+  "╬": {
+    frames: [{ glyph: "╬", color: "#c8c89b" }],
   },
 
-  // Farmhouse / home (soft yellow)
-  "H": {
-    glyphA: "█",
-    colorA: "#ffff66",
-    glyphB: "█",
-    colorB: "#fff799"
+  // Barn / house
+  "█": {
+    frames: [
+      { glyph: "█", color: "#ff5500" },
+      { glyph: "█", color: "#ff6a1a" },
+    ],
   },
 
-  // Tractor / machinery yard
-  "T": {
-    glyphA: "▣",
-    colorA: "#ff8800",
-    glyphB: "▣",
-    colorB: "#ffaa33"
+  // Machinery
+  "◎": {
+    frames: [
+      { glyph: "◎", color: "#ffaa33" },
+      { glyph: "¤", color: "#ff8800" },
+    ],
   },
 
-  // Player start marker (we'll eventually move this)
+  // Player
   "@": {
-    glyphA: "@",
-    colorA: "#ffff00",
-    glyphB: "@",
-    colorB: "#ffff66"
+    frames: [
+      { glyph: "@", color: "#ffff00" },
+      { glyph: "@", color: "#ffff77" },
+    ],
   },
 
-  // fallback / empty
-  ".": {
-    glyphA: " ",
-    colorA: "#000000",
-    glyphB: " ",
-    colorB: "#000000"
+  // Fallback
+  " ": {
+    frames: [{ glyph: " ", color: "#000000" }],
   },
-  "?": {
-    glyphA: "?",
-    colorA: "#ff00ff",
-    glyphB: "?",
-    colorB: "#ff00ff"
-  }
 };

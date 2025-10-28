@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>COZY FARM :: game</title>
+<link rel="stylesheet" href="game.css" />
+</head>
+<body>
+<div id="screen">
+
+  <!-- LEFT: main game view -->
+  <div id="game-area">
+    <pre id="world-view">
+( world goes here )
+    </pre>
+  </div>
+
+  <!-- RIGHT: sidebar / HUD -->
+  <aside id="hud">
+    <div class="hud-section">
+      <div class="hud-label">FARM:</div>
+      <div class="hud-value" id="hud-farm-name">GOOSEGATE</div>
+    </div>
+
+    <div class="hud-section">
+      <div class="hud-label">TIME:</div>
+      <div class="hud-value" id="hud-time">14:20</div>
+    </div>
+
+    <div class="hud-section">
+      <div class="hud-label">COINS:</div>
+      <div class="hud-value" id="hud-coins">£342</div>
+    </div>
+
+    <div class="hud-section">
+      <div class="hud-label">INVENTORY:</div>
+      <div class="hud-list" id="hud-inventory">
+        wheat x12
+        milk  x4
+        eggs  x3
+      </div>
+    </div>
+
+    <div class="hud-section">
+      <div class="hud-label">MODE:</div>
+      <div class="hud-value" id="hud-mode">walking</div>
+    </div>
+
+    <div class="hud-hint">
+      arrows / WASD: move  
+      E: interact  
+      Esc: menu
+    </div>
+  </aside>
+
+</div>
+</body>
+</html>

@@ -3,157 +3,111 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>COZY FARM :: game</title>
+<title>COZY FARM :: Game</title>
 <style>
-/* GLOBAL LOOK */
-html, body {
-  height: 100%;
-  margin: 0;
-  background: #000;
-  color: #fff;
-  font-family: "Courier New", Courier, monospace;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
+html,body{
+  height:100%;
+  margin:0;
+  background:#000;
+  color:#fff;
+  font-family:"Courier New",monospace;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  overflow:hidden;
 }
-
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: repeating-linear-gradient(
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:repeating-linear-gradient(
     to bottom,
     rgba(0,255,100,0.05) 0px,
     rgba(0,0,0,0.15) 2px,
     rgba(0,0,0,0) 3px
   );
-  pointer-events: none;
-  opacity: .35;
+  pointer-events:none;
+  opacity:.35;
+}
+#screen{
+  width:100vw;
+  height:100vh;
+  display:grid;
+  grid-template-columns:2fr 1fr;
+  grid-template-rows:100%;
+  column-gap:1rem;
+  box-sizing:border-box;
+  padding:2vh 2vw;
 }
 
-#screen {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  display: grid;
-  grid-template-columns: 2fr 1fr; /* left 2/3, right 1/3 */
-  grid-template-rows: 100%;
-  column-gap: 1rem;
-  box-sizing: border-box;
-  padding: 2vh 2vw;
+/* Left world panel */
+#game-area{
+  border:2px solid #00ff66;
+  border-radius:4px;
+  box-shadow:0 0 8px #00ff6699,0 0 20px #00ff6633;
+  background:#000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+#world-view{
+  background:#000;
+  margin:0;
+  white-space:pre;
+  overflow:hidden;
+  font-size:0.45rem; /* square pixels */
+  line-height:0.55rem;
 }
 
-/* LEFT FARM VIEW */
-#game-area {
-  position: relative;
-  border: 2px solid #00ff66;
-  border-radius: 4px;
-  box-shadow:
-    0 0 8px #00ff6699,
-    0 0 20px #00ff6633;
-  background: #000;
-  display: flex;
-  align-items: stretch;
-  justify-content: stretch;
-  overflow: hidden;
-  padding: 0;
+/* Right HUD panel */
+#hud{
+  border:2px solid #00ff66;
+  border-radius:4px;
+  box-shadow:0 0 8px #00ff6699,0 0 20px #00ff6633;
+  background:#000;
+  padding:1rem;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  min-width:14rem;
+  color:#fff;
+  font-size:0.9rem;
+  line-height:1.2rem;
 }
-
-/* the "screen" we render into */
-#world-view {
-  flex: 1;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  background: #000;
-  white-space: pre;
-  overflow: hidden;
-  font-size: 0.5rem;     /* tiny "pixels" */
-  line-height: 0.6rem;   /* tight rows = dense grid */
-}
-
-/* RIGHT HUD PANEL */
-#hud {
-  border: 2px solid #00ff66;
-  border-radius: 4px;
-  box-shadow:
-    0 0 8px #00ff6699,
-    0 0 20px #00ff6633;
-  background: #000;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  min-width: 14rem;
-  color: #fff;
-  font-size: 0.9rem;
-  line-height: 1.2rem;
-}
-
-.hud-section {
-  margin-bottom: 1.2rem;
-  white-space: pre;
-}
-
-.hud-label {
-  font-size: 0.75rem;
-  font-weight: bold;
-  letter-spacing: 0.05em;
-  opacity: 0.8;
-}
-
-.hud-value {
-  font-size: 0.9rem;
-  line-height: 1.2rem;
-  font-weight: bold;
-}
-
-/* coloured readouts */
-#hud-farm-name   { color:#ffff66; text-shadow:0 0 6px #ffff6699,0 0 14px #ffff6633; }
-#hud-time        { color:#66aaff; text-shadow:0 0 6px #66aaff99,0 0 14px #66aaff33; }
-#hud-coins       { color:#ffdd55; text-shadow:0 0 6px #ffdd5599,0 0 14px #ffdd5533; }
-#hud-mode        { color:#00ff99; text-shadow:0 0 6px #00ff9999,0 0 14px #00ff9933; }
-
-#hud-inventory   { color:#00ff66; text-shadow:0 0 6px #00ff6699,0 0 14px #00ff6633; }
-
-.hud-hint {
-  margin-top: auto;
-  font-size: 0.7rem;
-  line-height: 1.1rem;
-  opacity: 0.5;
-  white-space: pre;
-  border-top: 1px solid #00ff6644;
-  padding-top: 1rem;
+.hud-section{margin-bottom:1rem;}
+.hud-label{font-size:0.75rem;font-weight:bold;opacity:0.8;}
+.hud-value{font-size:0.95rem;font-weight:bold;}
+#hud-farm-name{color:#ffff66;}
+#hud-time{color:#66aaff;}
+#hud-coins{color:#ffdd55;}
+#hud-mode{color:#00ff99;}
+.hud-hint{
+  margin-top:auto;
+  font-size:0.7rem;
+  opacity:0.5;
+  border-top:1px solid #00ff6644;
+  padding-top:1rem;
   color:#888;
 }
 </style>
 </head>
 <body>
 <div id="screen">
-
-  <!-- LEFT: world -->
-  <div id="game-area">
-    <pre id="world-view">(loading farm…)</pre>
-  </div>
-
-  <!-- RIGHT: HUD -->
+  <div id="game-area"><pre id="world-view">(loading farm…)</pre></div>
   <aside id="hud">
     <div class="hud-section">
       <div class="hud-label">FARM:</div>
       <div class="hud-value" id="hud-farm-name">GOOSEGATE</div>
     </div>
-
     <div class="hud-section">
       <div class="hud-label">TIME:</div>
       <div class="hud-value" id="hud-time">06:10</div>
     </div>
-
     <div class="hud-section">
       <div class="hud-label">COINS:</div>
       <div class="hud-value" id="hud-coins">£342</div>
     </div>
-
     <div class="hud-section">
       <div class="hud-label">INVENTORY:</div>
       <div id="hud-inventory">
@@ -162,22 +116,16 @@ milk  x4
 eggs  x3
       </div>
     </div>
-
     <div class="hud-section">
       <div class="hud-label">MODE:</div>
       <div class="hud-value" id="hud-mode">walking</div>
     </div>
-
     <div class="hud-hint">
-arrows / WASD: move
-E: interact
+WASD / Arrows: move  
 Esc: menu
     </div>
   </aside>
-
 </div>
-
-<!-- GAME BOOTSTRAP -->
 <script type="module" src="./game.js"></script>
 </body>
 </html>

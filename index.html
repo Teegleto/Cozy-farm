@@ -40,7 +40,7 @@ body::after{
   -webkit-font-smoothing:none;
 }
 
-/* title + version */
+/* title */
 #ascii-title{
   position:absolute;
   top:8vh;
@@ -50,9 +50,11 @@ body::after{
   line-height:1.1;
   white-space:pre;
 }
+
+/* version text under title */
 #version{
   position:absolute;
-  top:calc(8vh + 12rem); /* slightly lower below the ASCII logo */
+  top:calc(8vh + 12rem); /* a little spacing below the ascii block */
   left:50%;
   transform:translateX(-50%);
   font-size:1rem;
@@ -140,7 +142,7 @@ body::after{
  ╚═════╝    ╚═════╝   ╚══════╝     ╚═╝         ╚═╝        ╚═╝  ╚═╝   ╚═╝  ╚═╝   ╚═╝     ╚═╝  
 </pre>
 
-  <!-- VERSION (now perfectly centered and spaced below the logo) -->
+  <!-- VERSION -->
   <div id="version">v1.0.0</div>
 
   <!-- MAIN MENU MODE -->
@@ -166,8 +168,10 @@ body::after{
 /*
 GAME STATES:
 "title"     = intro screen showing N/L menu
-"loadMenu"  = after pressing L, shows save slots and waits for number key
-"naming"    = after pressing N, lets user type name, then asks Y/N
+"loadMenu"  = after pressing L, shows save slots, waits for number key
+"naming"    = after pressing N, lets you type farm name, then asks Y/N
+When you confirm Y or pick a save:
+  -> go to game/game.html
 */
 
 const state = {
@@ -188,16 +192,24 @@ const namingBlockEl = document.getElementById("naming-block");
 const farmNameLine  = document.getElementById("farm-name-line");
 const confirmLine   = document.getElementById("confirm-line");
 
-// --- RENDER HELPERS ---
+// --- helpers ---
+function goToGame(slotLabel){
+  // For now we just navigate. slotLabel is unused,
+  // but later we’ll pass ?slot=slotLabel so game can load the right save.
+  window.location = "game/game.html";
+}
 
 function renderTitleMode() {
+  state.mode = "title";
   menuBlockEl.style.display   = "block";
   loadListEl.style.display    = "none";
   namingBlockEl.style.display = "none";
 }
 
 function renderLoadMenuMode() {
-  // vertical list of saves
+  state.mode = "loadMenu";
+
+  // build vertical list of saves
   if (state.saves.length === 0) {
     loadListEl.innerHTML = "<div>  (no save files found)</div>";
   } else {
@@ -214,6 +226,7 @@ function renderLoadMenuMode() {
 }
 
 function renderNamingMode() {
+  state.mode = "naming";
   menuBlockEl.style.display   = "none";
   namingBlockEl.style.display = "block";
 
@@ -240,17 +253,18 @@ function sanitize(str){
 // --- INPUT HANDLING ---
 
 window.addEventListener("keydown", (e) => {
+
   // TITLE MODE
   if (state.mode === "title") {
     if (e.key === "n" || e.key === "N") {
-      state.mode = "naming";
+      // start naming flow
       state.nameBuffer = "";
       state.confirmReady = false;
       renderNamingMode();
       return;
     }
     if (e.key === "l" || e.key === "L") {
-      state.mode = "loadMenu";
+      // show saves
       renderLoadMenuMode();
       return;
     }
@@ -263,10 +277,12 @@ window.addEventListener("keydown", (e) => {
       const idx = parseInt(e.key,10)-1;
       if (state.saves[idx]) {
         console.log("LOAD SAVE SLOT:", idx+1, state.saves[idx]);
+        // jump into game view
+        goToGame(idx+1);
+        return;
       }
     }
     if (e.key === "Escape") {
-      state.mode = "title";
       renderTitleMode();
     }
     return;
@@ -274,21 +290,32 @@ window.addEventListener("keydown", (e) => {
 
   // NAMING MODE
   if (state.mode === "naming") {
+
+    // if we're waiting for Y/N confirmation
     if (state.confirmReady) {
       if (e.key === "y" || e.key === "Y") {
         console.log("START GAME with farm:", state.nameBuffer);
+        // we will later create a new save slot before redirect
+        goToGame("new");
         return;
       }
       if (e.key === "n" || e.key === "N") {
+        // reset naming, let them retype
         state.nameBuffer = "";
         state.confirmReady = false;
         renderNamingMode();
         return;
       }
+      if (e.key === "Escape") {
+        renderTitleMode();
+        return;
+      }
       return;
     }
 
+    // still typing farm name
     if (e.key === "Enter") {
+      // done typing, ask Y/N
       state.confirmReady = true;
       renderNamingMode();
       return;
@@ -300,6 +327,7 @@ window.addEventListener("keydown", (e) => {
       return;
     }
 
+    // allowed characters
     if (/^[a-zA-Z0-9 _-]$/.test(e.key)) {
       if (state.nameBuffer.length < 20) {
         state.nameBuffer += e.key;
@@ -307,8 +335,8 @@ window.addEventListener("keydown", (e) => {
       }
     }
 
+    // Escape from naming goes back to title menu
     if (e.key === "Escape") {
-      state.mode = "title";
       renderTitleMode();
     }
 
